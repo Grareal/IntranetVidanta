@@ -1,0 +1,16 @@
+bin/
+obj/
+*.user
+*.suo
+.vs/
+appsettings.Development.json
+*.DotSettings.user
+umbraco/Data/TEMP/
+umbraco/Data/Logs/
+umbraco/Data/Models/
+umbraco/Data/-packages/
+umbraco/Logs/
+*.lock
+umbraco/Data/*.sqlite.db-shm
+umbraco/Data/*.sqlite.db-wal
+umbraco/Data/*.sqlite.db

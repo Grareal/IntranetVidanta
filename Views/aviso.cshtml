@@ -1,0 +1,33 @@
+﻿@inherits UmbracoViewPage
+@using System.Globalization
+@{
+    Layout = null;
+    var ci = new CultureInfo("es-MX");
+    var titulo = Model.Value<string>("titulo") ?? "";
+    var area = Model.Value<string>("area") ?? "";
+    var etiqueta = Model.Value<string>("etiqueta") ?? "";
+    var contenido = Model.Value<string>("contenidoTexto") ?? "";
+    var portada = Model.Value<IPublishedContent>("portada")?.Url();
+    var fecha = Model.CreateDate.ToString("dd 'de' MMMM 'de' yyyy", ci);
+}
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>@titulo — Intranet Vidanta</title>
+<link rel="stylesheet" href="/css/intranet.css">
+</head><body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="/"><span class="name">GRUPO <b>VIDANTA</b></span></a>
+</div></header>
+<main class="wrap" style="padding-top:24px">
+  <div class="crumbs"><a href="/">Inicio</a> / @area / @titulo</div>
+  <article style="background:#fff;border-radius:14px;padding:32px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-top:16px">
+    @if(portada!=null){<img src="@portada" alt="@titulo" style="width:100%;max-height:400px;object-fit:cover;border-radius:10px;margin-bottom:20px">}
+    <span style="display:inline-block;background:var(--blue);color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;margin-bottom:12px">@area</span>
+    @if(etiqueta!=""){<span style="display:inline-block;background:var(--bg);color:var(--gray);padding:4px 14px;border-radius:20px;font-size:12px;margin-left:8px">@etiqueta</span>}
+    <h1 style="margin:14px 0 8px;font-size:26px;color:var(--navy)">@titulo</h1>
+    <div style="color:var(--gray);font-size:13px;margin-bottom:18px">@fecha</div>
+    <div style="line-height:1.7;font-size:15px">@Html.Raw(contenido)</div>
+  </article>
+</main>
+<footer><div class="wrap">© 2026 Grupo Vidanta · Intranet corporativa</div></footer>
+</body></html>

@@ -1,0 +1,30 @@
+﻿@inherits UmbracoViewPage
+@{
+    Layout = null;
+    var titulo = Model.Value<string>("titulo") ?? "";
+    var area = Model.Value<string>("area") ?? "";
+    var archivo = Model.Value<IPublishedContent>("archivo");
+}
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>@titulo — Intranet Vidanta</title>
+<link rel="stylesheet" href="/css/intranet.css">
+</head><body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="/"><span class="name">GRUPO <b>VIDANTA</b></span></a>
+</div></header>
+<main class="wrap" style="padding-top:24px">
+  <div class="crumbs"><a href="/">Inicio</a> / @area / @titulo</div>
+  <div style="background:#fff;border-radius:14px;padding:32px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-top:16px;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">📄</div>
+    <h1 style="font-size:22px;color:var(--navy);margin-bottom:8px">@titulo</h1>
+    <p style="color:var(--gray);margin-bottom:20px">@area</p>
+    @if(archivo != null){
+      <a href="@archivo.Url()" target="_blank" style="display:inline-block;background:var(--blue);color:#fff;padding:12px 32px;border-radius:8px;font-weight:600;text-decoration:none">Descargar archivo</a>
+    } else {
+      <p style="color:var(--gray)">No hay archivo adjunto.</p>
+    }
+  </div>
+</main>
+<footer><div class="wrap">© 2026 Grupo Vidanta · Intranet corporativa</div></footer>
+</body></html>
