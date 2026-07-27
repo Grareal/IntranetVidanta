@@ -285,22 +285,24 @@ button,input,textarea,select{font:inherit;outline:none}
 .quick-link .ql-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ===== HOME LANDING PAGE ===== */
-.home-landing{min-height:100vh;display:flex;flex-direction:column}
-.landing-hero{background:linear-gradient(135deg,var(--plaza-dark,rgba(10,46,40,.85)) 0%,var(--plaza-color,rgba(26,74,58,.75)) 30%,var(--plaza-darker,rgba(45,107,74,.7)) 60%,var(--plaza-color,rgba(26,74,58,.75)) 100%);position:relative;overflow:hidden;padding:60px 32px 48px;text-align:center}
+.home-landing{min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:0}
+.landing-hero{background:linear-gradient(135deg,var(--plaza-dark,rgba(10,46,40,.85)) 0%,var(--plaza-color,rgba(26,74,58,.75)) 30%,var(--plaza-darker,rgba(45,107,74,.7)) 60%,var(--plaza-color,rgba(26,74,58,.75)) 100%);position:relative;z-index:1;overflow:hidden;padding:60px 32px 48px;text-align:center}
 .landing-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 20%,var(--gold-alpha-12,rgba(200,169,106,.12)),transparent 70%),radial-gradient(ellipse 60% 40% at 80% 90%,rgba(255,255,255,.04),transparent 60%);pointer-events:none;z-index:1}
 .landing-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,63,53,.2) 0%,rgba(8,63,53,.1) 50%,rgba(8,63,53,.05) 100%);pointer-events:none;z-index:1}
 .hero-hover-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .6s cubic-bezier(.22,1,.36,1);z-index:0}
 .hero-hover-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(8,63,53,.6),rgba(8,63,53,.4) 50%,rgba(8,63,53,.5));pointer-events:none}
 .hero-hover-bg.show{opacity:1}
+.landing-body{position:relative;z-index:1;padding:32px;max-width:1200px;margin:0 auto;width:100%;flex:1;background:rgba(244,239,232,0.88)}
 .landing-content{position:relative;z-index:2;max-width:800px;margin:0 auto}
 .landing-badge{display:inline-flex;padding:8px 20px;border-radius:9999px;background:var(--gold-alpha-12,rgba(200,169,106,.12));border:1px solid var(--gold-alpha-20,rgba(200,169,106,.2));color:var(--gold);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin-bottom:20px}
 .landing-content h1{font-size:44px;font-weight:800;color:var(--white);margin:0 0 16px;line-height:1.1}
 .landing-sub{font-size:18px;color:var(--text-secondary);max-width:600px;margin:0 auto 12px;line-height:1.7}
 .landing-date{font-size:14px;color:var(--text-tertiary);margin-top:8px}
-.landing-body{padding:32px;max-width:1200px;margin:0 auto;width:100%;flex:1}
 .section-header{text-align:center;margin-bottom:28px}
 .section-header h2{font-size:28px;font-weight:700;color:#1a2e3f;margin:0 0 8px}
 .section-header p{font-size:15px;color:#6b7280;margin:0}
+.hero-hover-bg.show ~ .landing-body .section-header h2{color:var(--white)}
+.hero-hover-bg.show ~ .landing-body .section-header p{color:var(--gold)}
 .resort-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px}
 .no-resorts{text-align:center;padding:40px;color:#6b7280}
 
