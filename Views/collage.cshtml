@@ -1,32 +1,23 @@
 ﻿@inherits UmbracoViewPage
 @{
-    Layout = null;
-    var titulo = Model.Value<string>("titulo") ?? "";
-    var area = Model.Value<string>("area") ?? "";
+    Layout = "Shared/_Layout.cshtml";
+    var titulo = Model.Value("titulo") as string ?? "";
+    var area = Model.Value("area") as string ?? "";
     var fotos = Model.Value<IEnumerable<IPublishedContent>>("fotos");
 }
-<!DOCTYPE html><html lang="es"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>@titulo — Intranet Vidanta</title>
-<link rel="stylesheet" href="/css/intranet.css">
-<style>.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}.gallery img{width:100%;border-radius:10px;aspect-ratio:4/3;object-fit:cover}</style>
-</head><body>
-<header class="topbar"><div class="wrap">
-  <a class="brand" href="/"><span class="name">GRUPO <b>VIDANTA</b></span></a>
-</div></header>
-<main class="wrap" style="padding-top:24px">
-  <div class="crumbs"><a href="/">Inicio</a> / @area / @titulo</div>
-  <h1 style="font-size:24px;color:var(--navy);margin:16px 0">@titulo</h1>
-  <span style="display:inline-block;background:var(--blue);color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;margin-bottom:16px">@area</span>
-  @if(fotos != null && fotos.Any()){
-    <div class="gallery">
-      @foreach(var foto in fotos){
-        <a href="@foto.Url()" target="_blank"><img src="@foto.Url()" alt="@foto.Name" loading="lazy"></a>
-      }
-    </div>
-  } else {
-    <div class="empty">No hay fotos en este collage.</div>
-  }
-</main>
-<footer><div class="wrap">© 2026 Grupo Vidanta · Intranet corporativa</div></footer>
-</body></html>
+<div class="hero-bg"><div class="detail-page">
+  <div class="detail-article">
+    <div class="breadcrumbs" style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:12px"><a href="/" style="color:var(--gold)">Inicio</a> / @area / @titulo</div>
+    <h1>@titulo</h1>
+    <span class="detail-tags"><span class="tag-area">@area</span></span>
+    @if(fotos != null && fotos.Any()){
+      <div class="gallery-grid">
+        @foreach(var foto in fotos){
+          <a href="@foto.Url()" target="_blank"><img src="@foto.Url()" alt="@foto.Name" loading="lazy"></a>
+        }
+      </div>
+    } else {
+      <div class="empty-state">No hay fotos en este collage.</div>
+    }
+  </div>
+</div></div>

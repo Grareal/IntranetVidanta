@@ -1,0 +1,21 @@
+﻿@inherits UmbracoViewPage
+@{
+    Layout = "Shared/_Layout.cshtml";
+    var nombre = Model.Value("nombre") as string ?? Model.Name;
+    var puesto = Model.Value("puesto") as string ?? "";
+    var extension = Model.Value("extension") as string ?? "";
+    var email = Model.Value("email") as string ?? "";
+    var iniciales = Model.Value("iniciales") as string ?? nombre.Take(2).ToUpper();
+}
+<section class="content-block">
+    <div class="breadcrumbs"><a href="/">Inicio</a> / @nombre</div>
+    <div style="display:flex;align-items:center;gap:20px;margin-top:16px">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-weight:700;flex-shrink:0">@iniciales</div>
+        <div>
+            <h1 style="font-size:22px;color:var(--navy);margin:0">@nombre</h1>
+            @if (!string.IsNullOrWhiteSpace(puesto)) { <p style="color:var(--gray);margin:4px 0">@puesto</p> }
+            @if (!string.IsNullOrWhiteSpace(extension)) { <p style="color:var(--gray);margin:4px 0">Ext: @extension</p> }
+            @if (!string.IsNullOrWhiteSpace(email)) { <a href="mailto:@email" style="color:var(--blue)">@email</a> }
+        </div>
+    </div>
+</section>

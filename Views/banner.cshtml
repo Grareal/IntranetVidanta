@@ -1,0 +1,30 @@
+﻿@inherits UmbracoViewPage
+@{
+    Layout = "Shared/_Layout.cshtml";
+    var titulo = Model.Value("titulo") as string ?? Model.Name;
+    var subtitulo = Model.Value("subtitulo") as string ?? "";
+    var url = Model.Value("url") as string ?? "#";
+    var imagen = Model.Value<IPublishedContent>("imagen");
+    var orden = Model.Value("orden") as string ?? "";
+}
+@if (imagen != null)
+{
+    <a href="@(url != "#" ? url : "javascript:void(0)")" style="display:block;position:relative;text-decoration:none">
+        <img src="@imagen.Url()" alt="@titulo" style="width:100%;border-radius:20px;margin-top:16px" loading="lazy">
+        @if (!string.IsNullOrWhiteSpace(titulo) || !string.IsNullOrWhiteSpace(subtitulo))
+        {
+            <div style="position:absolute;bottom:20px;left:20px;right:20px;background:rgba(22,48,92,.85);color:#fff;padding:16px 24px;border-radius:16px">
+                @if (!string.IsNullOrWhiteSpace(titulo)) { <h2 style="margin:0;font-size:22px">@titulo</h2> }
+                @if (!string.IsNullOrWhiteSpace(subtitulo)) { <p style="margin:6px 0 0;opacity:.9">@subtitulo</p> }
+            </div>
+        }
+    </a>
+}
+else
+{
+    <section class="content-block">
+        <div class="breadcrumbs"><a href="/">Inicio</a> / Banner</div>
+        <h1 class="page-title">@titulo</h1>
+        @if (!string.IsNullOrWhiteSpace(subtitulo)) { <p style="color:var(--gray);margin-top:8px">@subtitulo</p> }
+    </section>
+}

@@ -1,0 +1,265 @@
+@inherits UmbracoViewPage
+@{
+    var root = Model.Root();
+    var currentId = Model.Id;
+    var currentType = Model.ContentType.Alias;
+    var currentTitle = ViewData["Title"] as string ?? Model.Value("titulo") as string ?? Model.Value("nombre") as string ?? Model.Name;
+    var searchQuery = Context.Request.Query["q"].ToString();
+    var isHome = currentType == "home";
+    var plazas = root.Children().Where(c => c.ContentType.Alias == "plaza").ToList();
+
+    IPublishedContent? currentPlaza = null;
+    if (currentType == "plaza") { currentPlaza = Model; }
+    else if (!isHome) {
+        var parent = Model.Parent();
+        while (parent != null && parent.ContentType.Alias != "plaza" && parent.Id != root.Id) { parent = parent.Parent(); }
+        if (parent != null && parent.ContentType.Alias == "plaza") { currentPlaza = parent; }
+    }
+
+    var areas = new List<dynamic>();
+    var accesos = new List<dynamic>();
+    var aplicaciones = new List<dynamic>();
+    var sidebarTitle = "Navegación";
+    bool hasPlazaNav = false;
+
+    if (currentPlaza != null) {
+        sidebarTitle = currentPlaza.Name;
+        hasPlazaNav = true;
+        foreach (var a in currentPlaza.Children().Where(c => c.ContentType.Alias == "areaPage")) {
+            var sub = a.Children().Where(c => c.ContentType.Alias == "areaPage").Select(c => new { c.Name, Url = c.Url(), c.Id }).ToList();
+            areas.Add(new { a.Name, Url = a.Url(), a.Id, Sub = sub });
+        }
+        foreach (var q in currentPlaza.Children().Where(c => c.ContentType.Alias == "accesoRapido")) {
+            accesos.Add(new { Nombre = q.Value("nombre") as string ?? q.Name, Url = q.Value("url") as string ?? "#", Icono = q.Value("icono") as string ?? "→" });
+        }
+        aplicaciones = currentPlaza.Children().Where(c => c.ContentType.Alias == "aplicacion" && (c.Value("url") as string) != "#").Cast<dynamic>().ToList();
+    } else if (plazas.Any()) {
+        sidebarTitle = "Resorts";
+        foreach (var p in plazas) {
+            areas.Add(new { p.Name, Url = p.Url(), p.Id, Sub = new List<dynamic>() });
+        }
+    } else {
+        foreach (var a in root.Children().Where(c => c.ContentType.Alias == "areaPage")) {
+            var sub = a.Children().Where(c => c.ContentType.Alias == "areaPage").Select(c => new { c.Name, Url = c.Url(), c.Id }).ToList();
+            areas.Add(new { a.Name, Url = a.Url(), a.Id, Sub = sub });
+        }
+        foreach (var q in root.Children().Where(c => c.ContentType.Alias == "accesoRapido")) {
+            accesos.Add(new { Nombre = q.Value("nombre") as string ?? q.Name, Url = q.Value("url") as string ?? "#", Icono = q.Value("icono") as string ?? "→" });
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@currentTitle — Intranet Vidanta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/intranet.css">
+@RenderSection("Head", required: false)
+</head>
+<body class="app-shell">
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Menú">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+<button class="sidebar-collapse" id="sidebarCollapse" aria-label="Colapsar menú" title="Colapsar menú">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="6" x2="7" y2="12"/><line x1="17" y1="18" x2="7" y2="12"/></svg>
+</button>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <a href="/" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+            <svg viewBox="0 0 200 200" aria-hidden="true" style="width:38px;height:38px">
+                <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C8A96A"/><stop offset="1" stop-color="#D4BC82"/></linearGradient></defs>
+                <g fill="url(#g)">
+                    <g id="pt"><path d="M100,100 C86,72 88,42 106,22 C114,50 112,80 100,100 Z"/></g>
+                    <use href="#pt" transform="rotate(45 100 100)"/><use href="#pt" transform="rotate(90 100 100)"/><use href="#pt" transform="rotate(135 100 100)"/>
+                    <use href="#pt" transform="rotate(180 100 100)"/><use href="#pt" transform="rotate(225 100 100)"/><use href="#pt" transform="rotate(270 100 100)"/><use href="#pt" transform="rotate(315 100 100)"/>
+                </g>
+            </svg>
+            <div class="logo-text"><span>Intranet</span><strong>Grupo Vidanta</strong></div>
+        </a>
+    </div>
+    <div class="sidebar-user">
+        <div class="avatar">VI</div>
+        <div class="user-info"><strong>Colaborador</strong><small>Grupo Vidanta</small></div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+        @if (hasPlazaNav)
+        {
+            <a class="nav-item" href="/">
+                <span class="nav-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </span>
+                <span class="nav-label">Inicio</span>
+            </a>
+        }
+        @if (!isHome || hasPlazaNav)
+        {
+            foreach (var area in areas)
+            {
+                var isActive = area.Id == currentId || (area.Sub != null && ((List<dynamic>)area.Sub).Any(s => s.Id == currentId));
+                if (area.Sub != null && ((List<dynamic>)area.Sub).Any())
+                {
+                    <div class="nav-item has-sub @(isActive ? "active" : "")" onclick="toggleSubNav(this)" onmouseenter="hoverOpen(this)" onmouseleave="hoverClose(this)">
+                        <span class="nav-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        </span>
+                        <span class="nav-label">@area.Name</span>
+                        <span class="nav-arrow">▾</span>
+                    </div>
+                    <div class="nav-sub @(isActive ? "open" : "")">
+                        @foreach (var sub in area.Sub)
+                        {
+                            <a class="sub-item @(sub.Id == currentId ? "active" : "")" href="@sub.Url">@sub.Name</a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <a class="nav-item @(isActive ? "active" : "")" href="@area.Url">
+                        <span class="nav-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        </span>
+                        <span class="nav-label">@area.Name</span>
+                    </a>
+                }
+            }
+            @if (hasPlazaNav && aplicaciones.Any())
+            {
+                <a class="nav-item @(currentType == "aplicacion" ? "active" : "")" href="@(aplicaciones.First().Url())">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    </span>
+                    <span class="nav-label">Aplicaciones</span>
+                </a>
+            }
+        }
+        @if (!hasPlazaNav && plazas.Any())
+        {
+            <div class="sidebar-section-label">Resorts</div>
+            foreach (var p in plazas)
+            {
+                var isActive = p.Id == currentId || (currentPlaza != null && currentPlaza.Id == p.Id);
+                <a class="nav-item @(isActive ? "active" : "")" href="@p.Url()">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </span>
+                    <span class="nav-label">@p.Name</span>
+                </a>
+            }
+        }
+    </nav>
+    @if (accesos.Any())
+    {
+        <div class="sidebar-quick">
+            <div class="sidebar-section-label">Accesos rápidos</div>
+            <div class="quick-list">
+                @foreach (var item in accesos)
+                {
+                    <a class="quick-link" href="@item.Url" target="_blank" rel="noopener noreferrer">
+                        <span>@item.Icono</span>
+                        <span class="ql-label">@item.Nombre</span>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+    <div class="sidebar-footer">
+        <a class="nav-item" href="/umbraco">
+            <span class="nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </span>
+            <span class="nav-label">Administración</span>
+        </a>
+    </div>
+</aside>
+
+<main class="main-area" id="mainArea">
+    @RenderBody()
+</main>
+
+<script>
+(function(){
+    var sidebar = document.getElementById('sidebar');
+    var mainArea = document.getElementById('mainArea');
+    var collapseBtn = document.getElementById('sidebarCollapse');
+    var mobileBtn = document.getElementById('sidebarToggle');
+    var overlay = document.getElementById('mobileOverlay');
+
+    // Restore sidebar state from localStorage
+    var collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (collapsed) {
+        sidebar.classList.add('collapsed');
+        mainArea.classList.add('sidebar-collapsed');
+        if (collapseBtn) collapseBtn.classList.add('is-collapsed');
+    }
+
+    // Desktop collapse toggle
+    if (collapseBtn) {
+        collapseBtn.onclick = function(e) {
+            e.stopPropagation();
+            sidebar.classList.toggle('collapsed');
+            mainArea.classList.toggle('sidebar-collapsed');
+            collapseBtn.classList.toggle('is-collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        };
+    }
+
+    // Mobile toggle
+    if (mobileBtn) {
+        mobileBtn.onclick = function(e) {
+            e.stopPropagation();
+            sidebar.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('show');
+        };
+    }
+    if (overlay) {
+        overlay.onclick = function() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        };
+    }
+
+    // Subnav toggle (click)
+    window.toggleSubNav = function(el) {
+        el.classList.toggle('open');
+        var sub = el.nextElementSibling;
+        if (sub && sub.classList.contains('nav-sub')) { sub.classList.toggle('open'); }
+    };
+
+    // Subnav hover (desktop only)
+    var hoverTimer = null;
+    window.hoverOpen = function(el) {
+        if (window.innerWidth < 1024) return;
+        clearTimeout(hoverTimer);
+        el.classList.add('open');
+        var sub = el.nextElementSibling;
+        if (sub && sub.classList.contains('nav-sub')) { sub.classList.add('open'); }
+    };
+    window.hoverClose = function(el) {
+        if (window.innerWidth < 1024) return;
+        hoverTimer = setTimeout(function() {
+            el.classList.remove('open');
+            var sub = el.nextElementSibling;
+            if (sub && sub.classList.contains('nav-sub')) { sub.classList.remove('open'); }
+        }, 300);
+    };
+
+    // Active nav item highlight
+    var currentPath = window.location.pathname;
+    document.querySelectorAll('.nav-item').forEach(function(item) {
+        var href = item.getAttribute('href');
+        if (href && currentPath === href) {
+            document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+            item.classList.add('active');
+        }
+    });
+})();
+</script>
+@RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -1,25 +1,21 @@
 ﻿@inherits UmbracoViewPage
 @using System.Globalization
-@using Microsoft.Extensions.DependencyInjection
-@using Umbraco.Cms.Core.Services.Navigation
 @{
-    Layout = null;
-    var Nav = Context.RequestServices.GetRequiredService<IDocumentNavigationQueryService>();
-    var Status = Context.RequestServices.GetRequiredService<IPublishedContentStatusFilteringService>();
+    Layout = "Shared/_Layout.cshtml";
     var ci = new CultureInfo("es-MX");
     var q = Context.Request.Query["q"].ToString();
     var results = new List<dynamic>();
     if (!string.IsNullOrWhiteSpace(q))
     {
-        var root = Model.Root(Nav, Status);
+        var root = Model.Root();
         var searchTerms = q.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var allContent = root.Descendants(Nav, Status);
+        var allContent = root.Descendants();
         foreach (var item in allContent)
         {
-            var title = item.Value<string>("titulo") ?? item.Value<string>("nombre") ?? item.Name ?? "";
-            var area = item.Value<string>("area") ?? "";
-            var content = item.Value<string>("contenidoTexto") ?? item.Value<string>("descripcion") ?? "";
-            var externalUrl = item.Value<string>("url") ?? "";
+            var title = item.Value("titulo") as string ?? item.Value("nombre") as string ?? item.Name ?? "";
+            var area = item.Value("area") as string ?? "";
+            var content = item.Value("contenidoTexto") as string ?? item.Value("descripcion") as string ?? "";
+            var externalUrl = item.Value("url") as string ?? "";
             var combined = (title + " " + area + " " + content).ToLower();
             if (searchTerms.All(t => combined.Contains(t)))
             {
@@ -38,53 +34,31 @@
         }
     }
 }
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Búsqueda@(q != "" ? ": " + q : "") — Intranet Vidanta</title>
-<link rel="stylesheet" href="/css/intranet.css">
-</head>
-<body>
-<header class="topbar"><div class="wrap">
-  <a class="brand" href="/">
-    <svg class="logo" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16305c"/><stop offset="1" stop-color="#46a8da"/></linearGradient></defs><g fill="url(#g)"><g id="pt"><path d="M100,100 C86,72 88,42 106,22 C114,50 112,80 100,100 Z"/></g><use href="#pt" transform="rotate(45 100 100)"/><use href="#pt" transform="rotate(90 100 100)"/><use href="#pt" transform="rotate(135 100 100)"/><use href="#pt" transform="rotate(180 100 100)"/><use href="#pt" transform="rotate(225 100 100)"/><use href="#pt" transform="rotate(270 100 100)"/><use href="#pt" transform="rotate(315 100 100)"/></g></svg>
-    <span class="name">GRUPO <b>VIDANTA</b></span>
-  </a>
-  <div class="search"><form action="/busqueda" method="get" style="display:flex;align-items:center;width:100%"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input name="q" value="@q" placeholder="Buscar documentos, personas, aplicaciones…" style="border:none;background:transparent;outline:none;flex:1;height:40px;font-size:14px;padding:0 8px"></form></div>
-  <div class="top-actions"><div class="avatar"><div class="pic">VI</div><div class="who">Colaborador<br><small>Grupo Vidanta</small></div></div></div>
-</div></header>
-<nav class="nav"><div class="wrap">
-  <a href="/">Inicio</a>
-</div></nav>
-<main class="wrap" style="padding-top:24px">
-  <h1 style="font-size:22px;color:var(--navy);margin-bottom:4px">@(q != "" ? "Resultados para: \"" + q + "\"" : "Escribe algo para buscar")</h1>
-  @if (q != "" && results.Any()) { <p style="color:#666;margin:0 0 18px">@results.Count resultado(s) encontrado(s)</p> }
+<div class="hero-bg"><div class="search-page">
+  <h1>@(q != "" ? "Resultados para: \"" + q + "\"" : "Escribe algo para buscar")</h1>
+  @if (q != "" && results.Any()) { <p class="search-count">@results.Count resultado(s) encontrado(s)</p> }
   @if (results.Any())
   {
-    <div style="display:flex;flex-direction:column;gap:10px">
+    <div class="search-results">
       @foreach (var r in results)
       {
-        <a href="@r.Url" style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;text-decoration:none;color:inherit;transition:box-shadow .15s" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
-          <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#1f5fa8,#46a8da);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;flex-shrink:0">@(r.Tipo == "aviso" ? "📣" : r.Tipo == "documento" ? "📄" : r.Tipo == "aplicacion" ? "🔗" : "📁")</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:600;font-size:15px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">@r.Titulo</div>
-            <div style="font-size:12px;color:#888;margin-top:2px">@r.Area · @r.Fecha</div>
+        <a class="content-list-item" href="@r.Url">
+          <div class="cli-icon">@(r.Tipo == "aviso" ? "📣" : r.Tipo == "documento" ? "📄" : r.Tipo == "aplicacion" ? "🔗" : "📁")</div>
+          <div class="cli-body">
+            <strong>@r.Titulo</strong>
+            <small>@r.Area · @r.Fecha</small>
           </div>
-          <div style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.5px">@r.Tipo</div>
+          <span class="cli-meta" style="text-transform:uppercase;font-size:11px;letter-spacing:.5px">@r.Tipo</span>
         </a>
       }
     </div>
   }
   else if (q != "")
   {
-    <div class="empty">No se encontraron resultados para "<b>@q</b>". Intenta con otros términos.</div>
+    <div class="empty-state">No se encontraron resultados para "<b>@q</b>". Intenta con otros términos.</div>
   }
   else
   {
-    <div class="empty">Ingresa un término de búsqueda en la barra superior.</div>
+    <div class="empty-state">Ingresa un término de búsqueda en la barra superior.</div>
   }
-</main>
-<footer><div class="wrap"><div>© 2026 Grupo Vidanta · Intranet corporativa — <b>uso interno</b></div><div>Service Desk · Extensiones · Ayuda</div></div></footer>
-</body></html>
+</div></div>

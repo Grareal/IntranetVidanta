@@ -1,0 +1,15 @@
+﻿@inherits UmbracoViewPage
+@{
+    Layout = "Shared/_Layout.cshtml";
+    var titulo = Model.Value("titulo") as string ?? Model.Name;
+    var tipo = Model.Value("tipo") as string ?? "custom";
+    var orden = Model.Value("orden") as string ?? "";
+    var visible = Model.Value<bool>("visible");
+    var limite = Model.Value("limite") as string ?? "";
+    var contenidoCustom = Model.Value("contenidoCustom") as string ?? "";
+}
+<section class="content-block">
+    <div class="breadcrumbs"><a href="/">Inicio</a> / @titulo</div>
+    <h1 class="page-title">@titulo</h1>
+    @if (!string.IsNullOrWhiteSpace(contenidoCustom)) { <div class="rich-content" style="margin-top:16px">@Html.Raw(contenidoCustom)</div> }
+</section>

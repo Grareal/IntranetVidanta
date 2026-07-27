@@ -1,0 +1,217 @@
+Usando la configuración de inicio de C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta\Properties\launchSettings.json...
+Compilando...
+C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta\IntranetVidanta.csproj : warning NU1903: El paquete "Microsoft.OpenApi" 2.0.0 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc
+C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta\IntranetVidanta.csproj : warning NU1903: El paquete "SQLitePCLRaw.lib.e_sqlite3" 2.1.11 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-2m69-gcr7-jv3q
+C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta\IntranetVidanta.csproj : warning NU1903: El paquete "Microsoft.OpenApi" 2.0.0 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc
+C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta\IntranetVidanta.csproj : warning NU1903: El paquete "SQLitePCLRaw.lib.e_sqlite3" 2.1.11 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-2m69-gcr7-jv3q
+[08:29:39 INF] Acquiring MainDom.
+[08:29:39 INF] Acquired MainDom.
+[08:29:41 INF] Caching document URLs.
+[08:29:41 INF] Cached 107 document URLs.
+[08:29:41 INF] Caching document aliases.
+[08:29:41 INF] Cached 0 document aliases.
+[08:29:42 INF] Document cache seeding completed with 8 seed keys.
+[08:29:42 INF] Media cache seeding completed with 8 seed keys.
+[08:29:42 INF] Element cache seeding completed with 0 seed keys.
+[08:29:43 INF] Starting recurring background jobs hosted services
+[08:29:43 INF] Starting a background hosted service for TempFileCleanupJob with a delay of 00:03:00, running every 01:00:00
+[08:29:43 INF] Starting a background hosted service for InstructionProcessJob with a delay of 00:01:00, running every 00:00:05
+[08:29:43 INF] Starting a background hosted service for TouchServerJob with a delay of 00:00:15, running every 00:01:00
+[08:29:43 INF] Starting a background hosted service for ReportSiteJob with a delay of 00:05:00, running every 1.00:00:00
+[08:29:43 INF] Completed starting recurring background jobs hosted services
+[08:29:43 INF] Now listening on: https://localhost:5011
+[08:29:43 INF] Application started. Press Ctrl+C to shut down.
+[08:29:43 INF] Hosting environment: Development
+[08:29:43 INF] Content root path: C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta
+[08:29:43 INF] Application URL configured as https://localhost:5011/.
+[08:29:44 INF] Adding examine event handlers for 3 index providers.
+[08:29:44 INF] plaza: hijos permitidos actualizados.
+[08:29:44 INF] home: hijos permitidos actualizados con 8 tipos.
+[08:29:49 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:51 INF] Content Inicio (id=1064) has been published.
+[08:29:52 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:52 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:52 INF] Content Operación (id=1179) has been published.
+[08:29:52 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:52 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:52 INF] Content Recursos Humanos (id=1180) has been published.
+[08:29:52 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:52 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:52 INF] Content Administración (id=1181) has been published.
+[08:29:52 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:52 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:52 INF] Content Mantenimiento (id=1182) has been published.
+[08:29:53 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:53 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:53 INF] Content Seguridad (id=1183) has been published.
+[08:29:53 WRN] The culture specified es-MX was not found in any configured sources for this service
+[08:29:53 INF] Todas las plantillas sincronizadas.
+[08:29:54 ERR] Compilation error occurred with message: C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta\Views\home.cshtml(18,226): error CS1503: Argument 3: cannot convert from 'method group' to 'object?'
+Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.UmbracoCompilationException: Exception of type 'Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.UmbracoCompilationException' was thrown.
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.CompileAndEmit(RazorCodeDocument codeDocument, String generatedCode)
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.CompileAndEmit(String relativePath)
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.OnCacheMiss(String normalizedPath)
+[08:29:54 ERR] An unhandled exception has occurred while executing the request.
+Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.UmbracoCompilationException: Exception of type 'Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.UmbracoCompilationException' was thrown.
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.CompileAndEmit(RazorCodeDocument codeDocument, String generatedCode)
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.CompileAndEmit(String relativePath)
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.OnCacheMiss(String normalizedPath)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Razor.Compilation.DefaultRazorPageFactoryProvider.CreateFactory(String relativePath)
+   at Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine.CreateCacheResult(HashSet`1 expirationTokens, String relativePath, Boolean isMainPage)
+   at Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine.OnCacheMiss(ViewLocationExpanderContext expanderContext, ViewLocationCacheKey cacheKey)
+   at Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine.LocatePageFromViewLocations(ActionContext actionContext, String pageName, Boolean isMainPage)
+   at Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine.FindView(ActionContext context, String viewName, Boolean isMainPage)
+   at Umbraco.Cms.Web.Website.ViewEngines.ProfilingViewEngine.FindView(ActionContext context, String viewName, Boolean isMainPage)
+   at Microsoft.AspNetCore.Mvc.ViewEngines.CompositeViewEngine.FindView(ActionContext context, String viewName, Boolean isMainPage)
+   at Umbraco.Cms.Web.Common.Controllers.UmbracoPageController.EnsurePhysicalViewExists(String template)
+   at Umbraco.Cms.Web.Common.Controllers.RenderController.CurrentTemplate[T](T model)
+   at Umbraco.Cms.Web.Common.Controllers.RenderController.Index()
+   at lambda_method120(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ExceptionContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeNextResourceFilter()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeFilterPipelineAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Umbraco.Cms.Web.Common.Middleware.BasicAuthenticationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Umbraco.Cms.Api.Management.Middleware.BackOfficeExternalLoginProviderErrorMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Microsoft.AspNetCore.Session.SessionMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Session.SessionMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Localization.RequestLocalizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Umbraco.Cms.Web.Common.Middleware.ProtectRecycleBinMediaMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at StackExchange.Profiling.MiniProfilerMiddleware.Invoke(HttpContext context) in C:\projects\dotnet\src\MiniProfiler.AspNetCore\MiniProfilerMiddleware.cs:line 112
+   at Umbraco.Cms.Web.Common.Middleware.UmbracoRequestMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Umbraco.Cms.Web.Common.Middleware.UmbracoRequestMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Umbraco.Cms.Web.Common.Middleware.PreviewAuthenticationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Umbraco.Cms.Web.Common.Middleware.BootFailedMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Umbraco.Cms.Web.Common.Middleware.UmbracoRequestLoggingMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at SixLabors.ImageSharp.Web.Middleware.ImageSharpMiddleware.Invoke(HttpContext httpContext, Boolean retry)
+   at Umbraco.Cms.Api.Management.Middleware.BackOfficeAuthorizationInitializationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Program.<>c.<<<Main>$>b__0_0>d.MoveNext() in C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta\Program.cs:line 17
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[08:30:43 INF] Registering distributed background jobs
+[08:30:43 INF] Registered distributed background job WebhookFiring, running every 00:00:10
+[08:30:43 INF] Registered distributed background job ContentVersionCleanupJob, running every 01:00:00
+[08:30:43 INF] Registered distributed background job HealthCheckNotifierJob, running every 1.00:00:00
+[08:30:43 INF] Registered distributed background job LogScrubberJob, running every 04:00:00
+[08:30:43 INF] Registered distributed background job ScheduledPublishingJob, running every 00:01:00
+[08:30:43 INF] Registered distributed background job TemporaryFileCleanupJob, running every 00:05:00
+[08:30:43 INF] Registered distributed background job WebhookLoggingCleanup, running every 1.00:00:00
+[08:30:43 INF] Registered distributed background job CacheInstructionsPruningJob, running every 00:01:00
+[08:30:43 INF] Registered distributed background job LongRunningOperationsCleanupJob, running every 00:02:00
+[08:30:43 INF] Registered distributed background job OpenIddictCleanupJob, running every 01:00:00
+[08:30:43 INF] Completed registering distributed background jobs
+[08:30:44 INF] The Delivery API is not enabled, no indexing will performed for the Delivery API content index.
+[08:38:02 ERR] Compilation error occurred with message: C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta\Views\home.cshtml(18,226): error CS1503: Argument 3: cannot convert from 'method group' to 'object?'
+Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.UmbracoCompilationException: Exception of type 'Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.UmbracoCompilationException' was thrown.
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.CompileAndEmit(RazorCodeDocument codeDocument, String generatedCode)
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.CompileAndEmit(String relativePath)
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.OnCacheMiss(String normalizedPath)
+[08:38:02 ERR] An unhandled exception has occurred while executing the request.
+Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.UmbracoCompilationException: Exception of type 'Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.UmbracoCompilationException' was thrown.
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.CompileAndEmit(RazorCodeDocument codeDocument, String generatedCode)
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.CompileAndEmit(String relativePath)
+   at Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.CollectibleRuntimeViewCompiler.OnCacheMiss(String normalizedPath)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Razor.Compilation.DefaultRazorPageFactoryProvider.CreateFactory(String relativePath)
+   at Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine.CreateCacheResult(HashSet`1 expirationTokens, String relativePath, Boolean isMainPage)
+   at Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine.OnCacheMiss(ViewLocationExpanderContext expanderContext, ViewLocationCacheKey cacheKey)
+   at Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine.LocatePageFromViewLocations(ActionContext actionContext, String pageName, Boolean isMainPage)
+   at Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine.FindView(ActionContext context, String viewName, Boolean isMainPage)
+   at Umbraco.Cms.Web.Website.ViewEngines.ProfilingViewEngine.FindView(ActionContext context, String viewName, Boolean isMainPage)
+   at Microsoft.AspNetCore.Mvc.ViewEngines.CompositeViewEngine.FindView(ActionContext context, String viewName, Boolean isMainPage)
+   at Umbraco.Cms.Web.Common.Controllers.UmbracoPageController.EnsurePhysicalViewExists(String template)
+   at Umbraco.Cms.Web.Common.Controllers.RenderController.CurrentTemplate[T](T model)
+   at Umbraco.Cms.Web.Common.Controllers.RenderController.Index()
+   at lambda_method120(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ExceptionContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeNextResourceFilter()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeFilterPipelineAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Umbraco.Cms.Web.Common.Middleware.BasicAuthenticationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Umbraco.Cms.Api.Management.Middleware.BackOfficeExternalLoginProviderErrorMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Microsoft.AspNetCore.Session.SessionMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Session.SessionMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Localization.RequestLocalizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Umbraco.Cms.Web.Common.Middleware.ProtectRecycleBinMediaMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at StackExchange.Profiling.MiniProfilerMiddleware.Invoke(HttpContext context) in C:\projects\dotnet\src\MiniProfiler.AspNetCore\MiniProfilerMiddleware.cs:line 112
+   at Umbraco.Cms.Web.Common.Middleware.UmbracoRequestMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Umbraco.Cms.Web.Common.Middleware.UmbracoRequestMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Umbraco.Cms.Web.Common.Middleware.PreviewAuthenticationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Umbraco.Cms.Web.Common.Middleware.BootFailedMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Umbraco.Cms.Web.Common.Middleware.UmbracoRequestLoggingMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at SixLabors.ImageSharp.Web.Middleware.ImageSharpMiddleware.Invoke(HttpContext httpContext, Boolean retry)
+   at Umbraco.Cms.Api.Management.Middleware.BackOfficeAuthorizationInitializationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Program.<>c.<<<Main>$>b__0_0>d.MoveNext() in C:\Users\adminemeza\Documents\4.-Rediseno_Intranet\IntranetVidanta\Program.cs:line 17
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)

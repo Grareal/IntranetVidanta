@@ -1,260 +1,90 @@
 ﻿@inherits UmbracoViewPage
 @using System.Globalization
-@using Microsoft.Extensions.DependencyInjection
-@using Umbraco.Cms.Core.Services.Navigation
 @{
-    Layout = null;
-    var Nav = Context.RequestServices.GetRequiredService<IDocumentNavigationQueryService>();
-    var Status = Context.RequestServices.GetRequiredService<IPublishedContentStatusFilteringService>();
+    Layout = "Shared/_Layout.cshtml";
     var ci = new CultureInfo("es-MX");
-    var areas = Model.Children(Nav, Status).Where(c => c.ContentType.Alias == "areaPage")
-        .Select(a => new {
-            a.Name, Url = a.Url(), a.Id,
-            Sub = a.Children(Nav, Status).Where(c => c.ContentType.Alias == "areaPage")
-                .Select(c => new { c.Name, Url = c.Url() }).ToList()
-        }).ToList();
-    var root = Model.Root(Nav, Status);
-    var allAvisos = root.DescendantsOfType(Nav, Status, "aviso").OrderByDescending(a => a.CreateDate)
-        .Select(av => new {
-            Titulo = av.Value<string>("titulo"),
-            Area = av.Value<string>("area"),
-            Tag = av.Value<string>("etiqueta"),
-            ImgUrl = av.Value<IPublishedContent>("portada")?.Url(),
-            Fecha = av.CreateDate.ToString("dd MMM yyyy", ci),
-            Url = av.Url()
-        }).ToList();
-    var allDocs = root.DescendantsOfType(Nav, Status, "documento").OrderByDescending(d => d.CreateDate)
-        .Select(d => new { Titulo = d.Value<string>("titulo"), Area = d.Value<string>("area") }).ToList();
-    var apps = root.DescendantsOfType(Nav, Status, "aplicacion")
-        .Where(a => a.Value<string>("url") != "#")
-        .Select(app => new {
-            Nombre = app.Value<string>("nombre") ?? app.Name,
-            Descripcion = app.Value<string>("descripcion") ?? "",
-            Url = app.Value<string>("url") ?? "#",
-            Categoria = app.Value<string>("categoria") ?? "",
-            Icono = app.Value<string>("icono") ?? "🔗"
-        }).ToList();
-    var accesos = Model.Children(Nav, Status).Where(c => c.ContentType.Alias == "accesoRapido")
-        .Select(q => new {
-            Nombre = q.Value<string>("nombre") ?? q.Name,
-            Url = q.Value<string>("url") ?? "#",
-            Icono = q.Value<string>("icono") ?? "🔗"
-        }).ToList();
-    var contactos = Model.Children(Nav, Status).Where(c => c.ContentType.Alias == "contacto")
-        .Select(c => new {
-            Nombre = c.Value<string>("nombre") ?? c.Name,
-            Puesto = c.Value<string>("puesto") ?? "",
-            Extension = c.Value<string>("extension") ?? "",
-            Email = c.Value<string>("email") ?? "",
-            Iniciales = c.Value<string>("iniciales") ?? "??"
-        }).ToList();
-    var banners = Model.Children(Nav, Status).Where(c => c.ContentType.Alias == "banner")
-        .OrderBy(b => b.Value<string>("orden") ?? "99")
-        .Select(b => new {
-            ImgUrl = b.Value<IPublishedContent>("imagen")?.Url() ?? "",
-            Titulo = b.Value<string>("titulo") ?? "",
-            Subtitulo = b.Value<string>("subtitulo") ?? "",
-            Url = b.Value<string>("url") ?? "#"
-        }).ToList();
-    var secciones = Model.Children(Nav, Status).Where(c => c.ContentType.Alias == "seccionHome")
-        .OrderBy(s => s.Value<string>("orden") ?? "99")
-        .Where(s => s.Value<bool?>("visible") != false)
-        .Select(s => new {
-            Titulo = s.Value<string>("titulo") ?? "",
-            Tipo = (s.Value<string>("tipo") ?? "").ToLower(),
-            Limite = int.TryParse(s.Value<string>("limite"), out var lim) ? lim : 6,
-            ContenidoCustom = s.Value<string>("contenidoCustom") ?? ""
-        }).ToList();
-    if (!secciones.Any())
-    {
-        secciones = new[] {
-            new { Titulo = "Avisos y comunicados", Tipo = "avisos", Limite = 6, ContenidoCustom = "" },
-            new { Titulo = "", Tipo = "documentos", Limite = 6, ContenidoCustom = "" },
-            new { Titulo = "", Tipo = "directorio", Limite = 0, ContenidoCustom = "" },
-            new { Titulo = "Aplicaciones", Tipo = "aplicaciones", Limite = 0, ContenidoCustom = "" }
-        }.ToList();
-    }
+    var root = Model.Root();
+    var allAvisos = root.DescendantsOfType("aviso").OrderByDescending(a => a.CreateDate).Take(6).ToList();
+    var allDocs = root.DescendantsOfType("documento").OrderByDescending(d => d.CreateDate).Take(6).ToList();
+    var apps = root.DescendantsOfType("aplicacion").Where(a => (a.Value("url") as string) != "#").ToList();
+    var accesos = Model.Children().Where(c => c.ContentType.Alias == "accesoRapido").ToList();
+    var contactos = Model.Children().Where(c => c.ContentType.Alias == "contacto").ToList();
+    var banners = Model.Children().Where(c => c.ContentType.Alias == "banner").OrderBy(b => b.Value("orden") as string ?? "99").ToList();
+    var hoy = DateTime.Now;
 }
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>@(Model.Value<string>("titulo") ?? "Intranet Vidanta")</title>
-<link rel="stylesheet" href="/css/intranet.css">
-</head>
-<body>
-<header class="topbar"><div class="wrap">
-  <a class="brand" href="/">
-    <svg class="logo" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16305c"/><stop offset="1" stop-color="#46a8da"/></linearGradient></defs><g fill="url(#g)"><g id="pt"><path d="M100,100 C86,72 88,42 106,22 C114,50 112,80 100,100 Z"/></g><use href="#pt" transform="rotate(45 100 100)"/><use href="#pt" transform="rotate(90 100 100)"/><use href="#pt" transform="rotate(135 100 100)"/><use href="#pt" transform="rotate(180 100 100)"/><use href="#pt" transform="rotate(225 100 100)"/><use href="#pt" transform="rotate(270 100 100)"/><use href="#pt" transform="rotate(315 100 100)"/></g></svg>
-    <span class="name">GRUPO <b>VIDANTA</b></span>
-  </a>
-  <div class="search"><form action="/busqueda" method="get" style="display:flex;align-items:center;width:100%"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input name="q" placeholder="Buscar documentos, personas, aplicaciones…" style="border:none;background:transparent;outline:none;flex:1;height:40px;font-size:14px;padding:0 8px"></form></div>
-  <div class="top-actions"><div class="avatar"><div class="pic">VI</div><div class="who">Colaborador<br><small>Grupo Vidanta</small></div></div></div>
-</div></header>
-<nav class="nav"><div class="wrap">
-  <a class="active" href="/">Inicio</a>
-  @foreach (var a in areas) {
-    if (a.Sub.Any()) {
-      <div class="nav-dropdown">
-        <span>@a.Name</span>
-        <div class="dropdown-menu">
-          @foreach (var s in a.Sub) { <a href="@s.Url">@s.Name</a> }
+<div class="hero-bg">
+    <div class="topbar-overlay">
+        <div class="greeting">
+            <h1>Bienvenido, Colaborador</h1>
+            <p>Sistemas · TI @hoy.ToString("dddd, dd 'de' MMMM 'de' yyyy", ci)</p>
         </div>
-      </div>
-    } else {
-      <a href="@a.Url">@a.Name</a>
-    }
-  }
-  <a href="#apps">Aplicaciones</a>
-</div></nav>
-<main class="wrap">
-  @if (banners.Any())
-  {
-    var slideId = "carousel-" + Model.Id;
-    <div class="carousel" id="@slideId">
-      <div class="carousel-slides">
-        @foreach (var b in banners)
-        {
-          <div class="carousel-slide" style="background-image:url('@(b.ImgUrl)')">
-            <div class="carousel-caption">
-              @if (b.Titulo != "") { <h2>@b.Titulo</h2> }
-              @if (b.Subtitulo != "") { <p>@b.Subtitulo</p> }
+        <div class="topbar-actions">
+            <div class="search-glass">
+                <form action="/busqueda" method="get">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                    <input name="q" placeholder="Buscar documentos, personas, aplicaciones…" aria-label="Buscar">
+                </form>
             </div>
-          </div>
-        }
-      </div>
-      @if (banners.Count > 1)
-      {
-        <button class="carousel-btn prev" onclick="carouselGo(this.closest('.carousel'),-1)">&#8249;</button>
-        <button class="carousel-btn next" onclick="carouselGo(this.closest('.carousel'),1)">&#8250;</button>
-        <div class="carousel-nav">
-          @for (var i = 0; i < banners.Count; i++)
-          {
-            <button class="carousel-dot @(i == 0 ? "active" : "")" onclick="carouselGoTo(this.closest('.carousel'),@i)"></button>
-          }
+            @if (allAvisos.Any()) { <div class="icon-btn" title="Notificaciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></div> }
+            <div class="topbar-avatar" title="Perfil">VI</div>
         </div>
-      }
     </div>
-    <script>
-    function carouselGo(c,d){var slides=c.querySelectorAll('.carousel-slide');var dots=c.querySelectorAll('.carousel-dot');var cur=0;for(var i=0;i<slides.length;i++){if(slides[i].classList.contains('active')){cur=i;break}}var next=(cur+d+slides.length)%slides.length;carouselGoTo(c,next)}
-    function carouselGoTo(c,idx){var slides=c.querySelectorAll('.carousel-slide');var dots=c.querySelectorAll('.carousel-dot');for(var i=0;i<slides.length;i++){slides[i].classList.remove('active');dots[i].classList.remove('active')}slides[idx].classList.add('active');dots[idx].classList.add('active')}
-    (function(){var c=document.getElementById('@slideId');if(!c)return;var slides=c.querySelectorAll('.carousel-slide');if(slides.length<=1)return;slides[0].classList.add('active');var idx=0;setInterval(function(){carouselGo(c,1)},5000)})();
-    </script>
-  }
-  else
-  {
-    <section class="hero">
-      <h1>@(Model.Value<string>("titulo") ?? "Bienvenido a la Intranet Vidanta")</h1>
-      <p>@(Model.Value<string>("mensaje") ?? "Tu plataforma de colaboración: avisos, documentos, galería y todas las aplicaciones internas en un solo lugar.")</p>
-      <div class="date">@DateTime.Now.ToString("dddd, dd 'de' MMMM 'de' yyyy", ci)</div>
-    </section>
-  }
-
-  @foreach (var sec in secciones)
-  {
-    switch (sec.Tipo)
-    {
-      case "accesos":
-        <div class="section-title"><h2>@(sec.Titulo != "" ? sec.Titulo : "Accesos rápidos")</h2></div>
-        @if (accesos.Any()) {
-          <div class="qa">
-            @foreach (var q in accesos) {
-              <a href="@q.Url" target="_blank"><div class="icn">@q.Icono</div><span>@q.Nombre</span></a>
-            }
-          </div>
-        } else {
-          <div class="empty">No hay accesos rápidos configurados.</div>
+    <div class="dashboard-grid">
+        @if (banners.Any())
+        {
+            var slideId = "carousel-" + Model.Id;
+            <div class="dashboard-row full">
+                <div class="glass-card" style="padding:0;overflow:hidden;position:relative;height:280px" id="@slideId">
+                    <div style="display:flex;height:100%;transition:transform .6s ease" class="carousel-track">
+                        @for (var i = 0; i < banners.Count; i++)
+                        {
+                            var b = banners[i];
+                            var bTitulo = b.Value("titulo") as string ?? "";
+                            var bSubtitulo = b.Value("subtitulo") as string ?? "";
+                            <div class="carousel-slide" style="min-width:100%;height:100%;background:url('@(b.Value<IPublishedContent>("imagen")?.Url() ?? "")') center/cover no-repeat;display:flex;align-items:flex-end">
+                                <div style="padding:28px 32px;background:linear-gradient(0deg,rgba(8,63,53,.9),transparent);width:100%">
+                                    @if (!string.IsNullOrWhiteSpace(bTitulo)) { <h2 style="font-size:26px;color:#fff;margin:0 0 4px">@bTitulo</h2> }
+                                    @if (!string.IsNullOrWhiteSpace(bSubtitulo)) { <p style="font-size:14px;color:rgba(255,255,255,.8);margin:0">@bSubtitulo</p> }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    @if (banners.Count > 1)
+                    {
+                        <div style="position:absolute;bottom:16px;right:20px;display:flex;gap:8px;z-index:5">@for (var i = 0; i < banners.Count; i++) { <button class="carousel-dot @(i == 0 ? "active" : "")" onclick="goToSlide('@slideId', @i)"></button> }</div>
+                        <button class="carousel-btn prev" onclick="changeSlide('@slideId', -1)">â€¹</button>
+                        <button class="carousel-btn next" onclick="changeSlide('@slideId', 1)">â€º</button>
+                        <script>(function(){var c=document.getElementById('@slideId');if(!c)return;var t=c.querySelector('.carousel-track');var dots=c.querySelectorAll('.carousel-dot');var idx=0;var total=t.children.length;if(total<=1)return;function go(i){idx=(i+total)%total;t.style.transform='translateX(-'+(idx*100)+'%)';dots.forEach(function(d,j){d.classList.toggle('active',j===idx)})}window.goToSlide=function(id,i){go(i)};window.changeSlide=function(id,d){go(idx+d)};setInterval(function(){go(idx+1)},5000)})();</script>
+                    }
+                </div>
+            </div>
         }
-        break;
-
-      case "avisos":
-        <div class="section-title"><h2>@(sec.Titulo != "" ? sec.Titulo : "Avisos y comunicados")</h2></div>
-        var avisosMostrar = sec.Limite > 0 ? allAvisos.Take(sec.Limite).ToList() : allAvisos;
-        @if (avisosMostrar.Any()) {
-          <div class="news">
-          @foreach (var av in avisosMostrar) {
-            <a class="item" href="@av.Url">
-              <div class="thumb" style="@(av.ImgUrl != null ? "background-image:url('" + av.ImgUrl + "')" : "")">@(av.ImgUrl == null ? "📣" : "")</div>
-              <div class="body">
-                <span class="tag">@av.Area</span>
-                <h3>@av.Titulo</h3>
-                <p>@av.Tag</p>
-                <div class="meta">@av.Fecha</div>
-              </div>
-            </a>
-          }
-          </div>
-        } else {
-          <div class="empty">Aún no hay avisos publicados.</div>
-        }
-        break;
-
-      case "documentos":
-        var docsMostrar = sec.Limite > 0 ? allDocs.Take(sec.Limite).ToList() : allDocs;
-        <div class="panel"><h2>📁 @(sec.Titulo != "" ? sec.Titulo : "Documentos recientes")</h2>
-          @if (docsMostrar.Any()) {
-            @foreach (var d in docsMostrar) {
-              <a class="doc"><div class="ft">DOC</div><div class="info">@d.Titulo<small>@d.Area</small></div></a>
-            }
-          } else {
-            <div class="empty" style="padding:14px">Sin documentos aún.</div>
-          }
+        <div class="dashboard-row">
+            <div class="events-panel glass-card">
+                <div class="events-header"><h3>Avisos y comunicados</h3></div>
+                <div class="events-list">
+                    @if (allAvisos.Any()) { @foreach (var av in allAvisos.Take(4)) { <a class="event-item" href="@av.Url()"><span class="event-dot gold"></span><div class="event-info"><strong>@(av.Value("titulo") as string ?? av.Name)</strong><span>@(av.Value("area") as string ?? "")</span></div><span class="event-date">@av.CreateDate.ToString("dd MMM", ci)</span></a> } }
+                    else { <div class="empty-state" style="padding:20px">Aún no hay avisos publicados.</div> }
+                </div>
+            </div>
+            <div class="small-cards">
+                <div class="weather-card glass-card"><div class="weather-icon">ðŸŒ´</div><div class="weather-temp">28Â°</div><div class="weather-desc">Puerto Vallarta · Soleado</div></div>
+                <div class="occupancy-card glass-card"><div class="occupancy-pct">81%</div><div class="occupancy-bar"><div class="fill" style="width:81%"></div></div><div class="occupancy-sub">OcupaciÃ³n · Temporada alta</div></div>
+            </div>
         </div>
-        break;
-
-      case "directorio":
-        <div class="panel"><h2>👥 @(sec.Titulo != "" ? sec.Titulo : "Directorio")</h2>
-          @if (contactos.Any()) {
-            @foreach (var c in contactos) {
-              <a class="doc" href="mailto:@c.Email"><div class="ft" style="background:linear-gradient(135deg,#1f5fa8,#46a8da)">@c.Iniciales</div><div class="info">@c.Nombre<small>@c.Puesto@(c.Extension != "" ? " · Ext. " + c.Extension : "")</small></div></a>
-            }
-          } else {
-            <div class="empty" style="padding:14px">No hay contactos en el directorio.</div>
-          }
+        <div class="dashboard-row">
+            <div class="glass-card">
+                <div class="section-title-glass"><h2>ðŸ“‘ Documentos recientes</h2></div>
+                @if (allDocs.Any()) { <div class="content-list" style="margin-top:14px">@foreach (var d in allDocs) { <a class="content-list-item" href="@d.Url()"><div class="cli-icon">ðŸ“„</div><div class="cli-body"><strong>@(d.Value("titulo") as string ?? d.Name)</strong><small>@(d.Value("area") as string ?? "")</small></div><span class="cli-meta">@d.CreateDate.ToString("dd MMM", ci)</span><span class="cli-action">â†’</span></a> }</div> }
+                else { <div class="empty-state">AÃºn no hay documentos publicados.</div> }
+            </div>
+            <div class="glass-card">
+                <div class="section-title-glass"><h2>ðŸ‘¥ Directorio</h2></div>
+                @if (contactos.Any()) { <div class="content-list" style="margin-top:14px">@foreach (var c in contactos) { var cNombre = c.Value("nombre") as string ?? c.Name; var cEmail = c.Value("email") as string ?? ""; var cPuesto = c.Value("puesto") as string ?? ""; var cExtension = c.Value("extension") as string ?? ""; var cIniciales = c.Value("iniciales") as string ?? (cNombre.Length >= 2 ? cNombre.Substring(0,2).ToUpper() : "??"); <a class="content-list-item" href="mailto:@(cEmail)"><div class="cli-icon" style="border-radius:50%">@cIniciales</div><div class="cli-body"><strong>@cNombre</strong><small>@cPuesto@(cExtension != "" ? " · Ext. " + cExtension : "")</small></div></a> }</div> }
+                else { <div class="empty-state">No hay contactos en el directorio.</div> }
+            </div>
         </div>
-        break;
-
-      case "aplicaciones":
-        <div class="section-title" id="apps"><h2>@(sec.Titulo != "" ? sec.Titulo : "Aplicaciones")</h2></div>
-        @if (apps.Any()) {
-          <div class="apps-grid">
-            @foreach (var app in apps) {
-              <a class="app" href="@app.Url" target="_blank">
-                @if (app.Categoria != "") { <span class="badge">@app.Categoria</span> }
-                <div class="icn">@app.Icono</div>
-                <h3>@app.Nombre</h3>
-                <p>@app.Descripcion</p>
-              </a>
-            }
-          </div>
-        } else {
-          <div class="empty">Aún no hay aplicaciones configuradas.</div>
-        }
-        break;
-
-      case "custom":
-        @if (sec.ContenidoCustom != "") {
-          <div class="panel">@Html.Raw(sec.ContenidoCustom)</div>
-        }
-        break;
-    }
-  }
-
-  @if (!secciones.Any(s => s.Tipo == "accesos"))
-  {
-    <div class="section-title"><h2>Accesos rápidos</h2></div>
-    @if (accesos.Any()) {
-      <div class="qa">
-        @foreach (var q in accesos) {
-          <a href="@q.Url" target="_blank"><div class="icn">@q.Icono</div><span>@q.Nombre</span></a>
-        }
-      </div>
-    }
-  }
-
-  <div class="ribbon">Las aplicaciones internas se enlazan tal como están hoy y se modernizan una por una, sin interrumpir su uso.</div>
-</main>
-<footer><div class="wrap"><div>© 2026 Grupo Vidanta · Intranet corporativa — <b>uso interno</b></div><div>Service Desk · Extensiones · Ayuda</div></div></footer>
-</body>
-</html>
+        @if (apps.Any()) { <div class="dashboard-row full" id="apps"><div class="section-title-glass"><h2>Aplicaciones</h2></div><div class="apps-grid" style="margin-top:4px">@foreach (var app in apps) { var appUrl = app.Value("url") as string ?? "#"; var appCategoria = app.Value("categoria") as string ?? ""; var appIcono = app.Value("icono") as string ?? "ðŸ”—"; var appNombre = app.Value("nombre") as string ?? app.Name; var appDesc = app.Value("descripcion") as string ?? ""; <a class="app-card" href="@(appUrl)" target="_blank" rel="noopener noreferrer">@if (appCategoria != "") { <span class="app-badge">@appCategoria</span> }<div class="app-icon">@appIcono</div><h3>@appNombre</h3><p>@appDesc</p><span class="app-link">Abrir aplicaciÃ³n</span></a> }</div></div> }
+        @if (accesos.Any()) { <div class="dashboard-row full" style="margin-top:auto"><div class="quick-access glass-card">@foreach (var q in accesos) { var qUrl = q.Value("url") as string ?? "#"; var qIcono = q.Value("icono") as string ?? "â†’"; var qNombre = q.Value("nombre") as string ?? q.Name; <a class="qa-item" href="@(qUrl)" target="_blank" rel="noopener noreferrer"><span class="qa-icon">@qIcono</span>@qNombre</a> }</div></div> }
+    </div>
+</div>

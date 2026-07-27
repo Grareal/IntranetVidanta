@@ -1,26 +1,18 @@
 ﻿@inherits UmbracoViewPage
 @{
-    Layout = null;
-    var nombre = Model.Value<string>("nombre") ?? Model.Name;
-    var descripcion = Model.Value<string>("descripcion") ?? "";
-    var url = Model.Value<string>("url") ?? "#";
-    var categoria = Model.Value<string>("categoria") ?? "";
-    var icono = Model.Value<string>("icono") ?? "🔗";
+    Layout = "Shared/_Layout.cshtml";
+    var nombre = Model.Value("nombre") as string ?? Model.Name;
+    var descripcion = Model.Value("descripcion") as string ?? "";
+    var url = Model.Value("url") as string ?? "#";
+    var categoria = Model.Value("categoria") as string ?? "";
+    var icono = Model.Value("icono") as string ?? "🔗";
 }
-<!DOCTYPE html><html lang="es"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>@nombre — Intranet Vidanta</title>
-<link rel="stylesheet" href="/css/intranet.css">
-</head><body>
-<header class="topbar"><div class="wrap">
-  <a class="brand" href="/"><span class="name">GRUPO <b>VIDANTA</b></span></a>
-</div></header>
-<main class="wrap" style="padding-top:24px;text-align:center">
-  <div style="font-size:64px;margin:40px 0 16px">@icono</div>
-  <h1 style="font-size:26px;color:var(--navy)">@nombre</h1>
-  @if(categoria!=""){<p style="color:var(--gray);margin:8px 0">@categoria</p>}
-  @if(descripcion!=""){<p style="max-width:500px;margin:12px auto;line-height:1.6">@descripcion</p>}
-  <a href="@url" target="_blank" style="display:inline-block;background:var(--blue);color:#fff;padding:12px 32px;border-radius:8px;font-weight:600;margin-top:20px;text-decoration:none">Abrir aplicación</a>
-</main>
-<footer><div class="wrap">© 2026 Grupo Vidanta · Intranet corporativa</div></footer>
-</body></html>
+<div class="hero-bg"><div class="detail-page" style="text-align:center">
+  <div class="detail-article" style="text-align:center">
+    <div style="font-size:64px;margin-bottom:16px">@icono</div>
+    <h1>@nombre</h1>
+    @if(categoria!=""){<p style="color:var(--text-tertiary);margin:8px 0">@categoria</p>}
+    @if(descripcion!=""){<p style="max-width:500px;margin:12px auto;line-height:1.8;color:var(--text-secondary)">@descripcion</p>}
+    <a href="@url" target="_blank" class="detail-download" style="margin-top:10px">Abrir aplicación</a>
+  </div>
+</div></div>
