@@ -63,7 +63,27 @@
     var plazaColor = currentPlaza.Value("color") as string ?? "";
     if (!string.IsNullOrWhiteSpace(plazaColor))
     {
-        <style>:root{--plaza-color:@(plazaColor);--emerald:@(plazaColor)}</style>
+        <style>
+          :root{
+            --plaza-color:@(plazaColor);
+            --plaza-dark:color-mix(in srgb, @(plazaColor), black 25%);
+            --plaza-darker:color-mix(in srgb, @(plazaColor), black 40%);
+            --plaza-light:color-mix(in srgb, @(plazaColor), white 35%);
+            --plaza-lighter:color-mix(in srgb, @(plazaColor), white 55%);
+            --emerald:@(plazaColor);
+            --emerald-light:var(--plaza-light);
+            --gold:var(--plaza-light);
+            --gold-light:var(--plaza-lighter);
+            --gold-hover:color-mix(in srgb, @(plazaColor), white 55%);
+            --gold-alpha-5:color-mix(in srgb, @(plazaColor), transparent 95%);
+            --gold-alpha-8:color-mix(in srgb, @(plazaColor), transparent 92%);
+            --gold-alpha-10:color-mix(in srgb, @(plazaColor), transparent 90%);
+            --gold-alpha-12:color-mix(in srgb, @(plazaColor), transparent 88%);
+            --gold-alpha-15:color-mix(in srgb, @(plazaColor), transparent 85%);
+            --gold-alpha-20:color-mix(in srgb, @(plazaColor), transparent 80%);
+            --gold-alpha-40:color-mix(in srgb, @(plazaColor), transparent 60%);
+          }
+        </style>
     }
 }
 @RenderSection("Head", required: false)
