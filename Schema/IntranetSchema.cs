@@ -233,7 +233,7 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
     {
         if (_contentTypeService.Get("banner") is not null) return;
         var ct = NewType("banner", "Banner", "icon-picture color-blue");
-        AddProp(ct, MediaPicker(), "imagen", "Imagen del banner", true, 1);
+        AddProp(ct, MediaPicker(), "imagen", "Imagen del banner", false, 1);
         AddProp(ct, TextBox(), "titulo", "Título", false, 2);
         AddProp(ct, TextBox(), "subtitulo", "Subtítulo", false, 3);
         AddProp(ct, TextBox(), "url", "Enlace (URL)", false, 4);
@@ -367,36 +367,37 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
             _logger.LogInformation("Contenido raíz 'Inicio' creado (id {Id}).", home.Id);
         }
 
-        foreach (var area in Areas)
-        {
-            var node = _contentService.GetPagedChildren(home.Id, 0, 100, out _, (IQuery<IContent>?)null, (Ordering?)null)
-                .FirstOrDefault(c => c.Name == area.Nombre);
+        var existingChildren = _contentService.GetPagedChildren(home.Id, 0, 100, out _, (IQuery<IContent>?)null, (Ordering?)null).ToList();
+        var hasCustomContent = existingChildren.Any(c => c.ContentType.Alias is "areaPage" or "plaza");
 
-            if (node is null)
+        if (!hasCustomContent)
+        {
+            foreach (var area in Areas)
             {
-                node = _contentService.Create(area.Nombre, home.Id, "areaPage");
-                node.SetValue("titulo", area.Nombre);
-                _contentService.Save(node, UserId, null);
-                _contentService.Publish(node, new[] { "*" }, UserId);
-                _logger.LogInformation("Área '{Nombre}' creada (id {Id}).", area.Nombre, node.Id);
+                var node = existingChildren.FirstOrDefault(c => c.Name == area.Nombre);
+                if (node is null)
+                {
+                    node = _contentService.Create(area.Nombre, home.Id, "areaPage");
+                    node.SetValue("titulo", area.Nombre);
+                    _contentService.Save(node, UserId, null);
+                    _contentService.Publish(node, new[] { "*" }, UserId);
+                    _logger.LogInformation("Área '{Nombre}' creada (id {Id}).", area.Nombre, node.Id);
+                }
+                await EnsureEditorGroup(area.GrupoAlias, "Editor " + area.Nombre, area.Icono, node.Id);
             }
 
-            await EnsureEditorGroup(area.GrupoAlias, "Editor " + area.Nombre, area.Icono, node.Id);
+            var appsNode = existingChildren.FirstOrDefault(c => c.Name == "Aplicaciones");
+            if (appsNode is null)
+            {
+                appsNode = _contentService.Create("Aplicaciones", home.Id, "aplicacion");
+                appsNode.SetValue("nombre", "Aplicaciones");
+                appsNode.SetValue("url", "#");
+                _contentService.Save(appsNode, UserId, null);
+                _contentService.Publish(appsNode, new[] { "*" }, UserId);
+            }
         }
 
-        var appsNode = _contentService.GetPagedChildren(home.Id, 0, 100, out _, (IQuery<IContent>?)null, (Ordering?)null)
-            .FirstOrDefault(c => c.Name == "Aplicaciones");
-        if (appsNode is null)
-        {
-            appsNode = _contentService.Create("Aplicaciones", home.Id, "aplicacion");
-            appsNode.SetValue("nombre", "Aplicaciones");
-            appsNode.SetValue("url", "#");
-            _contentService.Save(appsNode, UserId, null);
-            _contentService.Publish(appsNode, new[] { "*" }, UserId);
-        }
-
-        var searchNode = _contentService.GetPagedChildren(home.Id, 0, 100, out _, (IQuery<IContent>?)null, (Ordering?)null)
-            .FirstOrDefault(c => c.ContentType.Alias == "busqueda");
+        var searchNode = existingChildren.FirstOrDefault(c => c.ContentType.Alias == "busqueda");
         if (searchNode is null)
         {
             searchNode = _contentService.Create("Búsqueda", home.Id, "busqueda");
@@ -444,6 +445,7 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
             ("Documento", "documento", DocumentoRazor),
             ("Collage", "collage", CollageRazor),
             ("Aplicación", "aplicacion", AplicacionRazor),
+            ("Banner", "banner", BannerRazor),
             ("Búsqueda", "busqueda", BusquedaRazor),
             ("Error 404", "error", ErrorRazor),
         };
@@ -485,30 +487,10 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
         }
 
         var home = _contentService.GetRootContent().FirstOrDefault(c => c.ContentType.Alias == "home");
-        if (home is not null && homeTpl is not null)
+        if (home is not null && homeTpl is not null && home.TemplateId != homeTpl.Id)
         {
             ((Content)home).TemplateId = homeTpl.Id;
             _contentService.Save(home, UserId, null);
-            _contentService.Publish(home, new[] { "*" }, UserId);
-
-            var areaTpl = await _templateService.GetAsync("areaPage");
-            var plazaTpl = await _templateService.GetAsync("plaza");
-            var children = _contentService.GetPagedChildren(home.Id, 0, 100, out _, (IQuery<IContent>?)null, (Ordering?)null);
-            foreach (var ch in children)
-            {
-                if (ch.ContentType.Alias == "areaPage")
-                {
-                    ((Content)ch).TemplateId = areaTpl?.Id;
-                    _contentService.Save(ch, UserId, null);
-                    _contentService.Publish(ch, new[] { "*" }, UserId);
-                }
-                else if (ch.ContentType.Alias == "plaza")
-                {
-                    ((Content)ch).TemplateId = plazaTpl?.Id;
-                    _contentService.Save(ch, UserId, null);
-                    _contentService.Publish(ch, new[] { "*" }, UserId);
-                }
-            }
         }
         _logger.LogInformation("Todas las plantillas sincronizadas.");
     }
@@ -882,5 +864,38 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
         @if (!avisos.Any() && !documentos.Any() && !children.Any() && string.IsNullOrWhiteSpace(contenido) && !collages.Any()) { <div class="empty-state">No hay contenido disponible en esta Ã¡rea.</div> }
     </div>
 </div>
+""";
+
+    private const string BannerRazor = """
+@inherits UmbracoViewPage
+@{
+    Layout = "Shared/_Layout.cshtml";
+    var titulo = Model.Value("titulo") as string ?? Model.Name;
+    var subtitulo = Model.Value("subtitulo") as string ?? "";
+    var url = Model.Value("url") as string ?? "#";
+    var imagen = Model.Value<IPublishedContent>("imagen");
+    var orden = Model.Value("orden") as string ?? "";
+}
+@if (imagen != null)
+{
+    <a href="@(url != "#" ? url : "javascript:void(0)")" style="display:block;position:relative;text-decoration:none">
+        <img src="@imagen.Url()" alt="@titulo" style="width:100%;border-radius:20px;margin-top:16px" loading="lazy">
+        @if (!string.IsNullOrWhiteSpace(titulo) || !string.IsNullOrWhiteSpace(subtitulo))
+        {
+            <div style="position:absolute;bottom:20px;left:20px;right:20px;background:rgba(22,48,92,.85);color:#fff;padding:16px 24px;border-radius:16px">
+                @if (!string.IsNullOrWhiteSpace(titulo)) { <h2 style="margin:0;font-size:22px">@titulo</h2> }
+                @if (!string.IsNullOrWhiteSpace(subtitulo)) { <p style="margin:6px 0 0;opacity:.9">@subtitulo</p> }
+            </div>
+        }
+    </a>
+}
+else
+{
+    <section class="content-block">
+        <div class="breadcrumbs"><a href="/">Inicio</a> / Banner</div>
+        <h1 class="page-title">@titulo</h1>
+        @if (!string.IsNullOrWhiteSpace(subtitulo)) { <p style="color:var(--gray);margin-top:8px">@subtitulo</p> }
+    </section>
+}
 """;
 }
