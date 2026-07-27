@@ -231,15 +231,31 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
 
     private async Task EnsureBanner()
     {
-        if (_contentTypeService.Get("banner") is not null) return;
+        var exists = _contentTypeService.Get("banner");
+        if (exists is not null)
+        {
+            var changed = false;
+            if (exists.PropertyTypes.All(p => p.Alias != "ancho"))
+            {
+                AddProp(exists, TextBox(), "ancho", "Ancho (columnas 1-6, predet. 2)", false, 6);
+                changed = true;
+            }
+            if (exists.PropertyTypes.All(p => p.Alias != "alto"))
+            {
+                AddProp(exists, TextBox(), "alto", "Altura en píxeles (ej: 420)", false, 7);
+                changed = true;
+            }
+            if (changed) await _contentTypeService.UpdateAsync((ContentType)exists, UserKey);
+            return;
+        }
         var ct = NewType("banner", "Banner", "icon-picture color-blue");
         AddProp(ct, MediaPicker(), "imagen", "Imagen del banner", false, 1);
         AddProp(ct, TextBox(), "titulo", "Título", false, 2);
         AddProp(ct, TextBox(), "subtitulo", "Subtítulo", false, 3);
         AddProp(ct, TextBox(), "url", "Enlace (URL)", false, 4);
         AddProp(ct, TextBox(), "orden", "Orden (número)", false, 5);
-        AddProp(ct, TextBox(), "ancho", "Ancho en columnas (1-6, default 2)", false, 6);
-        AddProp(ct, TextBox(), "alto", "Alto en filas (1-3, default 1)", false, 7);
+        AddProp(ct, TextBox(), "ancho", "Ancho (columnas 1-6, predet. 2)", false, 6);
+        AddProp(ct, TextBox(), "alto", "Altura en píxeles (ej: 420)", false, 7);
         await Persist(ct);
     }
 

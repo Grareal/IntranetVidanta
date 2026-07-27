@@ -41,12 +41,13 @@
                     var bTitulo = b.Value("titulo") as string ?? "";
                     var bSubtitulo = b.Value("subtitulo") as string ?? "";
                     var bAncho = int.TryParse(b.Value("ancho") as string, out var w) ? Math.Clamp(w, 1, 6) : 2;
-                    var bAlto = int.TryParse(b.Value("alto") as string, out var h) ? Math.Clamp(h, 1, 3) : 1;
+                    var bAlturaPx = b.Value("altura") as string ?? b.Value("alto") as string ?? "";
+                    var bAlturaStyle = string.IsNullOrWhiteSpace(bAlturaPx) ? "" : $"max-height:{bAlturaPx}px;";
                     if (!string.IsNullOrWhiteSpace(bImg))
                     {
-                        <div class="plaza-banner" style="grid-column:span @bAncho;grid-row:span @bAlto">
-                            @if (!string.IsNullOrWhiteSpace(bUrl)) { <a href="@bUrl" target="_blank" rel="noopener noreferrer"><img src="@bImg" alt="@bTitulo" loading="lazy"></a> }
-                            else { <img src="@bImg" alt="@bTitulo" loading="lazy"> }
+                        <div class="plaza-banner" style="grid-column:span @bAncho">
+                            @if (!string.IsNullOrWhiteSpace(bUrl)) { <a href="@bUrl" target="_blank" rel="noopener noreferrer"><img src="@bImg" alt="@bTitulo" loading="lazy" style="@bAlturaStyle"></a> }
+                            else { <img src="@bImg" alt="@bTitulo" loading="lazy" style="@bAlturaStyle"> }
                             @if (!string.IsNullOrWhiteSpace(bTitulo) || !string.IsNullOrWhiteSpace(bSubtitulo))
                             {
                                 <div class="plaza-banner-overlay">
@@ -59,7 +60,7 @@
                 }
             </div>
         }
-        @if (avisos.Any()) { <div class="dashboard-row"><div class="glass-card"><div class="section-title-glass"><h2>Avisos</h2></div><div class="events-list" style="margin-top:14px">@foreach (var av in avisos) { var avTexto = (av.Value("contenidoTexto") as string ?? ""); var avPreview = avTexto.Length > 120 ? avTexto.Substring(0, 120) + "…" : avTexto; <a class="event-item" href="@av.Url()"><span class="event-dot gold"></span><div class="event-info"><strong>@(av.Value("titulo") as string ?? av.Name)</strong><span>@(av.Value("area") as string ?? "")</span>@if (!string.IsNullOrWhiteSpace(avPreview)){<small style="display:block;margin-top:4px;color:var(--text-tertiary);font-size:12px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@Html.Raw(System.Text.RegularExpressions.Regex.Replace(avPreview, "<.*?>", ""))</small>}</div><span class="event-date">@av.CreateDate.ToString("dd MMM", ci)</span></a> }</div></div></div> }
+        @if (avisos.Any()) { <div class="dashboard-row"><div class="glass-card"><div class="section-title-glass"><h2>Avisos</h2></div><div class="events-list" style="margin-top:14px">@foreach (var av in avisos) { <a class="event-item" href="@av.Url()"><span class="event-dot gold"></span><div class="event-info"><strong>@(av.Value("titulo") as string ?? av.Name)</strong><span>@(av.Value("area") as string ?? "")</span></div><span class="event-date">@av.CreateDate.ToString("dd MMM", ci)</span></a> }</div></div></div> }
         @if (documentos.Any()) { <div class="dashboard-row"><div class="glass-card"><div class="section-title-glass"><h2>Documentos</h2></div><div class="content-list" style="margin-top:14px">@foreach (var d in documentos) { var archivo = d.Value<IPublishedContent>("archivo"); <a class="content-list-item" href="@(archivo?.Url() ?? d.Url())"><div class="cli-icon">ðŸ“„</div><div class="cli-body"><strong>@(d.Value("titulo") as string ?? d.Name)</strong><small>@(d.Value("area") as string ?? "")</small></div><span class="cli-meta">@d.CreateDate.ToString("dd MMM", ci)</span><span class="cli-action">â†’</span></a> }</div></div></div> }
         @if (apps.Any()) { <div class="dashboard-row full"><div class="section-title-glass"><h2>Aplicaciones</h2></div><div class="apps-grid" style="margin-top:4px">@foreach (var app in apps) { <a class="app-card" href="@(app.Value("url") as string ?? "#")" target="_blank"><span class="app-badge">@(app.Value("categoria") as string ?? "App")</span><div class="app-icon">@(app.Value("icono") as string ?? "ðŸ”—")</div><h3>@(app.Value("nombre") as string ?? app.Name)</h3><p>@(app.Value("descripcion") as string ?? "")</p><span class="app-link">Abrir</span></a> }</div></div> }
         @if (accesos.Any()) { <div class="dashboard-row full"><div class="quick-access glass-card">@foreach (var q in accesos) { <a class="qa-item" href="@(q.Value("url") as string ?? "#")" target="_blank"><span class="qa-icon">@(q.Value("icono") as string ?? "â†’")</span>@(q.Value("nombre") as string ?? q.Name)</a> }</div></div> }
