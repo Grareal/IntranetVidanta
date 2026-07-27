@@ -86,6 +86,28 @@
         </style>
     }
 }
+<style>
+.corporate-mode{
+  --plaza-color:#003366;
+  --plaza-dark:#002244;
+  --plaza-darker:#001a33;
+  --plaza-light:#004d80;
+  --plaza-lighter:#006699;
+  --emerald:#003366;
+  --emerald-light:#004d80;
+  --gold:#007799;
+  --gold-light:#0099bb;
+  --gold-hover:#00aacc;
+  --gold-alpha-12:rgba(0,119,153,.12);
+  --gold-alpha-10:rgba(0,119,153,.1);
+  --gold-alpha-15:rgba(0,119,153,.15);
+  --gold-alpha-8:rgba(0,119,153,.08);
+  --gold-alpha-5:rgba(0,119,153,.05);
+  --gold-alpha-20:rgba(0,119,153,.2);
+  --gold-alpha-40:rgba(0,119,153,.4);
+  --sand:#F4EFE1;
+}
+</style>
 @RenderSection("Head", required: false)
 </head>
 <body class="app-shell">
@@ -201,6 +223,10 @@
 </aside>
 
 <main class="main-area" id="mainArea">
+    <button class="theme-toggle" id="themeToggle" title="Alternar paleta corporativa" aria-label="Alternar paleta corporativa">
+        <span class="tt-icon">🎨</span>
+        <span class="tt-label">Corp</span>
+    </button>
     @RenderBody()
 </main>
 
@@ -280,6 +306,21 @@
             item.classList.add('active');
         }
     });
+
+    // Corporate mode toggle
+    var toggleBtn = document.getElementById('themeToggle');
+    var isCorporate = localStorage.getItem('corporateMode') === 'true';
+    if (isCorporate) {
+        document.documentElement.classList.add('corporate-mode');
+        if (toggleBtn) toggleBtn.classList.add('active');
+    }
+    if (toggleBtn) {
+        toggleBtn.onclick = function() {
+            document.documentElement.classList.toggle('corporate-mode');
+            toggleBtn.classList.toggle('active');
+            localStorage.setItem('corporateMode', document.documentElement.classList.contains('corporate-mode'));
+        };
+    }
 })();
 </script>
 @RenderSection("Scripts", required: false)

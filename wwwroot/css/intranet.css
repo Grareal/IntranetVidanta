@@ -341,3 +341,14 @@ button,input,textarea,select{font:inherit;outline:none}
   .apps-grid{grid-template-columns:1fr}
   .detail-article{padding:20px}
 }
+
+/* ===== THEME TOGGLE (Corporate Palette) ===== */
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:300;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-pill);background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid var(--glass-border);color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;transition:all var(--transition);box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.theme-toggle:hover{background:rgba(255,255,255,.1);color:var(--white)}
+.theme-toggle.active{background:var(--gold-alpha-12,rgba(0,119,153,.12));border-color:var(--gold,rgba(0,119,153,.4));color:var(--gold,#007799)}
+.theme-toggle .tt-icon{font-size:16px;line-height:1}
+.theme-toggle .tt-label{letter-spacing:.06em}
+@media(max-width:860px){.theme-toggle{top:68px;right:12px;padding:6px 10px;font-size:11px}}
+@media(max-width:860px){.theme-toggle .tt-label{display:none}}
+/* Corporate mode corporate logo gold */
+.corporate-mode .logo-text span{color:var(--gold,#007799)}
