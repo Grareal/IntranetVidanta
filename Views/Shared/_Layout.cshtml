@@ -101,8 +101,9 @@
         {
             foreach (var area in areas)
             {
-                var isActive = area.Id == currentId || (area.Sub != null && ((List<dynamic>)area.Sub).Any(s => s.Id == currentId));
-                if (area.Sub != null && ((List<dynamic>)area.Sub).Any())
+                var subItems = area.Sub as IEnumerable<dynamic>;
+                var isActive = area.Id == currentId || (subItems != null && subItems.Any(s => s.Id == currentId));
+                if (subItems != null && subItems.Any())
                 {
                     <div class="nav-item has-sub @(isActive ? "active" : "")" onclick="toggleSubNav(this)" onmouseenter="hoverOpen(this)" onmouseleave="hoverClose(this)">
                         <span class="nav-icon">

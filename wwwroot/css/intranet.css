@@ -276,6 +276,23 @@ button,input,textarea,select{font:inherit;outline:none}
 .quick-link span:first-child{width:28px;height:28px;border-radius:8px;background:rgba(200,169,106,.08);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;flex-shrink:0}
 .quick-link .ql-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
+/* ===== HOME LANDING PAGE ===== */
+.home-landing{min-height:100vh;display:flex;flex-direction:column}
+.landing-hero{background:linear-gradient(135deg,#0a2e28 0%,#1a4a3a 30%,#2d6b4a 60%,#1a4a3a 100%);position:relative;overflow:hidden;padding:60px 32px 48px;text-align:center}
+.landing-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 20%,rgba(200,169,106,.12),transparent 70%),radial-gradient(ellipse 60% 40% at 80% 90%,rgba(255,255,255,.04),transparent 60%);pointer-events:none}
+.landing-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,63,53,.2) 0%,rgba(8,63,53,.1) 50%,rgba(8,63,53,.05) 100%);pointer-events:none}
+.landing-content{position:relative;z-index:2;max-width:800px;margin:0 auto}
+.landing-badge{display:inline-flex;padding:8px 20px;border-radius:9999px;background:rgba(200,169,106,.12);border:1px solid rgba(200,169,106,.2);color:var(--gold);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin-bottom:20px}
+.landing-content h1{font-size:44px;font-weight:800;color:var(--white);margin:0 0 16px;line-height:1.1}
+.landing-sub{font-size:18px;color:var(--text-secondary);max-width:600px;margin:0 auto 12px;line-height:1.7}
+.landing-date{font-size:14px;color:var(--text-tertiary);margin-top:8px}
+.landing-body{padding:32px;max-width:1200px;margin:0 auto;width:100%;flex:1}
+.section-header{text-align:center;margin-bottom:28px}
+.section-header h2{font-size:28px;font-weight:700;color:#1a2e3f;margin:0 0 8px}
+.section-header p{font-size:15px;color:#6b7280;margin:0}
+.resort-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px}
+.no-resorts{text-align:center;padding:40px;color:#6b7280}
+
 /* ===== NAV SUB (HOVER ENHANCED) ===== */
 .nav-item.has-sub{cursor:pointer}
 .nav-item.has-sub:hover{background:rgba(255,255,255,.06);color:var(--white)}
