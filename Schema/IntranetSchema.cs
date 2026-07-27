@@ -238,6 +238,8 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
         AddProp(ct, TextBox(), "subtitulo", "Subtítulo", false, 3);
         AddProp(ct, TextBox(), "url", "Enlace (URL)", false, 4);
         AddProp(ct, TextBox(), "orden", "Orden (número)", false, 5);
+        AddProp(ct, TextBox(), "ancho", "Ancho en columnas (1-6, default 2)", false, 6);
+        AddProp(ct, TextBox(), "alto", "Alto en filas (1-3, default 1)", false, 7);
         await Persist(ct);
     }
 
