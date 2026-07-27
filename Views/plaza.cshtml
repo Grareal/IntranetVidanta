@@ -3,7 +3,7 @@
 @{
     Layout = "Shared/_Layout.cshtml";
     var ci = new CultureInfo("es-MX");
-    var children = Model.Children().Where(x => x.ContentType.Alias == "areaPage").ToList();
+    var banners = Model.Children().Where(c => c.ContentType.Alias == "banner").OrderBy(b => b.Value("orden") as string ?? "99").ToList();
     var avisos = Model.ChildrenOfType("aviso").OrderByDescending(x => x.CreateDate).Take(6).ToList();
     var documentos = Model.ChildrenOfType("documento").OrderByDescending(x => x.CreateDate).Take(6).ToList();
     var collages = Model.ChildrenOfType("collage").OrderByDescending(x => x.CreateDate).Take(6).ToList();
@@ -31,7 +31,32 @@
     </div>
     <div class="dashboard-grid">
         @if (!string.IsNullOrWhiteSpace(intro)) { <div class="dashboard-row full"><div class="glass-card"><div class="page-sub" style="font-size:15px;color:var(--text-secondary);line-height:1.8">@Html.Raw(intro)</div></div></div> }
-        @if (children.Any()) { <div class="dashboard-row"><div class="glass-card"><div class="section-title-glass"><h2>Ãreas</h2></div><div class="content-cards" style="margin-top:14px">@foreach (var child in children) { <a class="content-card" href="@child.Url()"><div class="card-head"><div class="card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><h3>@child.Name</h3></div><p>Accede a informaciÃ³n y recursos.</p><span class="card-action">Explorar â†’</span></a> }</div></div></div> }
+        @if (banners.Any())
+        {
+            <div class="dashboard-row full">
+                @foreach (var b in banners)
+                {
+                    var bImg = b.Value<IPublishedContent>("imagen")?.Url() ?? "";
+                    var bUrl = b.Value("url") as string ?? "";
+                    var bTitulo = b.Value("titulo") as string ?? "";
+                    var bSubtitulo = b.Value("subtitulo") as string ?? "";
+                    if (!string.IsNullOrWhiteSpace(bImg))
+                    {
+                        <div class="plaza-banner">
+                            @if (!string.IsNullOrWhiteSpace(bUrl)) { <a href="@bUrl" target="_blank" rel="noopener noreferrer"><img src="@bImg" alt="@bTitulo" loading="lazy"></a> }
+                            else { <img src="@bImg" alt="@bTitulo" loading="lazy"> }
+                            @if (!string.IsNullOrWhiteSpace(bTitulo) || !string.IsNullOrWhiteSpace(bSubtitulo))
+                            {
+                                <div class="plaza-banner-overlay">
+                                    @if (!string.IsNullOrWhiteSpace(bTitulo)) { <h3>@bTitulo</h3> }
+                                    @if (!string.IsNullOrWhiteSpace(bSubtitulo)) { <p>@bSubtitulo</p> }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        }
         @if (avisos.Any()) { <div class="dashboard-row"><div class="glass-card"><div class="section-title-glass"><h2>Avisos</h2></div><div class="events-list" style="margin-top:14px">@foreach (var av in avisos) { <a class="event-item" href="@av.Url()"><span class="event-dot gold"></span><div class="event-info"><strong>@(av.Value("titulo") as string ?? av.Name)</strong><span>@(av.Value("area") as string ?? "")</span></div><span class="event-date">@av.CreateDate.ToString("dd MMM", ci)</span></a> }</div></div></div> }
         @if (documentos.Any()) { <div class="dashboard-row"><div class="glass-card"><div class="section-title-glass"><h2>Documentos</h2></div><div class="content-list" style="margin-top:14px">@foreach (var d in documentos) { var archivo = d.Value<IPublishedContent>("archivo"); <a class="content-list-item" href="@(archivo?.Url() ?? d.Url())"><div class="cli-icon">ðŸ“„</div><div class="cli-body"><strong>@(d.Value("titulo") as string ?? d.Name)</strong><small>@(d.Value("area") as string ?? "")</small></div><span class="cli-meta">@d.CreateDate.ToString("dd MMM", ci)</span><span class="cli-action">â†’</span></a> }</div></div></div> }
         @if (apps.Any()) { <div class="dashboard-row full"><div class="section-title-glass"><h2>Aplicaciones</h2></div><div class="apps-grid" style="margin-top:4px">@foreach (var app in apps) { <a class="app-card" href="@(app.Value("url") as string ?? "#")" target="_blank"><span class="app-badge">@(app.Value("categoria") as string ?? "App")</span><div class="app-icon">@(app.Value("icono") as string ?? "ðŸ”—")</div><h3>@(app.Value("nombre") as string ?? app.Name)</h3><p>@(app.Value("descripcion") as string ?? "")</p><span class="app-link">Abrir</span></a> }</div></div> }

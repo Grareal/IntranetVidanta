@@ -71,9 +71,9 @@ button,input,textarea,select{font:inherit;outline:none}
 .main-area::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:6px}
 
 /* Hero Background */
-.hero-bg{position:relative;min-height:100vh;width:100%;background:linear-gradient(135deg,#0a2e28 0%,#1a4a3a 30%,#2d6b4a 60%,#1a4a3a 100%);overflow:hidden;display:flex;flex-direction:column;border-radius:0}
-.hero-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(200,169,106,.12),transparent 70%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(255,255,255,.04),transparent 60%);pointer-events:none;z-index:0}
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,63,53,.3) 0%,rgba(8,63,53,.15) 40%,rgba(8,63,53,.6) 100%);pointer-events:none;z-index:1}
+.hero-bg{position:relative;min-height:100vh;width:100%;background:linear-gradient(135deg,rgba(10,46,40,.85) 0%,rgba(26,74,58,.75) 30%,rgba(45,107,74,.7) 60%,rgba(26,74,58,.75) 100%);overflow:hidden;display:flex;flex-direction:column;border-radius:0}
+.hero-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(200,169,106,.08),transparent 70%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(255,255,255,.03),transparent 60%);pointer-events:none;z-index:0}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,63,53,.15) 0%,rgba(8,63,53,.08) 40%,rgba(8,63,53,.3) 100%);pointer-events:none;z-index:1}
 
 .hero-bg > *{position:relative;z-index:2}
 
@@ -213,6 +213,14 @@ button,input,textarea,select{font:inherit;outline:none}
 .gallery-grid a:hover{transform:scale(1.02)}
 .gallery-grid img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
 
+/* ===== PLAZA BANNERS ===== */
+.plaza-banner{position:relative;border-radius:var(--radius-card);overflow:hidden;margin-bottom:0;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid var(--glass-border)}
+.plaza-banner img{width:100%;max-height:360px;object-fit:cover;display:block;transition:transform var(--transition)}
+.plaza-banner a:hover img{transform:scale(1.02)}
+.plaza-banner-overlay{position:absolute;bottom:0;left:0;right:0;padding:24px 28px;background:linear-gradient(0deg,rgba(8,63,53,.85),transparent);pointer-events:none}
+.plaza-banner-overlay h3{font-size:20px;font-weight:700;color:var(--white);margin:0 0 4px}
+.plaza-banner-overlay p{font-size:13px;color:var(--text-secondary);margin:0}
+
 /* ===== SECTION TITLES ===== */
 .section-title-glass{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .section-title-glass h2{font-size:18px;font-weight:600;color:var(--white);margin:0}
@@ -278,7 +286,7 @@ button,input,textarea,select{font:inherit;outline:none}
 
 /* ===== HOME LANDING PAGE ===== */
 .home-landing{min-height:100vh;display:flex;flex-direction:column}
-.landing-hero{background:linear-gradient(135deg,#0a2e28 0%,#1a4a3a 30%,#2d6b4a 60%,#1a4a3a 100%);position:relative;overflow:hidden;padding:60px 32px 48px;text-align:center}
+.landing-hero{background:linear-gradient(135deg,rgba(10,46,40,.85) 0%,rgba(26,74,58,.75) 30%,rgba(45,107,74,.7) 60%,rgba(26,74,58,.75) 100%);position:relative;overflow:hidden;padding:60px 32px 48px;text-align:center}
 .landing-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 20%,rgba(200,169,106,.12),transparent 70%),radial-gradient(ellipse 60% 40% at 80% 90%,rgba(255,255,255,.04),transparent 60%);pointer-events:none}
 .landing-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,63,53,.2) 0%,rgba(8,63,53,.1) 50%,rgba(8,63,53,.05) 100%);pointer-events:none}
 .landing-content{position:relative;z-index:2;max-width:800px;margin:0 auto}
