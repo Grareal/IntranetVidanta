@@ -1,0 +1,12 @@
+@using Umbraco.Cms.Core.Models.Blocks
+@inherits UmbracoViewPage<BlockGridItem<IPublishedElement>>
+@{
+    var fotos = Model.Content.Value<IEnumerable<IPublishedContent>>("fotos");
+}
+<div class="block gallery-block">
+    <div class="gallery-grid">
+        @if (fotos != null) {
+            foreach (var f in fotos) { <a href="@f.Url()" target="_blank"><img src="@f.Url()" alt="@f.Name" loading="lazy"></a> }
+        }
+    </div>
+</div>

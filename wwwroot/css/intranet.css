@@ -227,6 +227,60 @@ button,input,textarea,select{font:inherit;outline:none}
 .section-title-glass a{font-size:12px;color:var(--gold);font-weight:600;transition:color var(--transition)}
 .section-title-glass a:hover{color:var(--gold-light)}
 
+/* ===== HERO WITH BACKGROUND IMAGE ===== */
+.hero-bg.has-image{background:var(--plaza-color,rgba(10,46,40,.85))!important}
+.hero-bg.has-image::before{background:linear-gradient(135deg,rgba(8,63,53,.55),rgba(8,63,53,.35) 50%,rgba(8,63,53,.45))!important;z-index:1}
+.hero-bg.has-image .hero-bg-img{position:absolute;inset:0;background-size:cover;background-position:center;z-index:0;opacity:.35;transition:opacity .8s ease}
+.hero-bg.has-image .hero-bg-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(8,63,53,.6) 100%)}
+.hero-bg.has-image > *{position:relative;z-index:2}
+.landing-hero.has-image{position:relative;overflow:hidden}
+.landing-hero.has-image .hero-bg-img{position:absolute;inset:0;background-size:cover;background-position:center;z-index:0;opacity:.3}
+.landing-hero.has-image .hero-bg-img::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(8,63,53,.7),rgba(8,63,53,.5))}
+.landing-hero.has-image .landing-content{position:relative;z-index:2}
+
+/* ===== LIGHT THEME (text contrast) ===== */
+.light-hero{--text-primary:#1a2e3f;--text-secondary:#4b5563;--text-tertiary:#6b7280}
+.light-hero .greeting h1,.light-hero .page-header-glass h1,.light-hero .detail-article h1,.light-hero .landing-content h1,.light-hero .section-title-glass h2,.light-hero .events-header h3,.light-hero .glass-card .card-head h3,.light-hero .content-card .card-head h3,.light-hero .resort-card-body h3,.light-hero .app-card h3,.light-hero .event-info strong,.light-hero .cli-body strong,.light-hero .weather-temp,.light-hero .occupancy-pct{color:var(--text-primary)!important}
+.light-hero .topbar-overlay .greeting p,.light-hero .page-sub,.light-hero .page-header-glass .page-sub,.light-hero .landing-sub,.light-hero .detail-meta,.light-hero .event-date,.light-hero .cli-meta,.light-hero .weather-desc,.light-hero .card-meta{color:var(--text-secondary)!important}
+.light-hero .search-glass input{color:var(--text-primary);background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.08)}
+.light-hero .search-glass input::placeholder{color:var(--text-tertiary)}
+.light-hero .glass-card,.light-hero .page-header-glass,.light-hero .content-card,.light-hero .content-list-item,.light-hero .detail-article,.light-hero .plaza-banner,.light-hero .app-card,.light-hero .resort-card{background:rgba(255,255,255,.78);backdrop-filter:blur(12px);border-color:rgba(0,0,0,.06)}
+.light-hero .glass-card:hover,.light-hero .content-card:hover{background:rgba(255,255,255,.88)}
+.light-hero .breadcrumbs{color:var(--text-tertiary)!important}
+.light-hero .icon-btn,.light-hero .theme-toggle{background:rgba(255,255,255,.65);border-color:rgba(0,0,0,.06);color:var(--text-secondary)}
+.light-hero .icon-btn:hover,.light-hero .theme-toggle:hover{background:rgba(255,255,255,.85);color:var(--text-primary)}
+.light-hero .quick-access .qa-item{background:rgba(255,255,255,.5);border-color:rgba(0,0,0,.06);color:var(--text-secondary)}
+.light-hero .quick-access .qa-item:hover{background:rgba(255,255,255,.7);color:var(--text-primary)}
+.light-hero .empty-state{background:rgba(255,255,255,.5);border-color:rgba(0,0,0,.1);color:var(--text-tertiary)}
+.light-hero .search-glass input:focus{border-color:var(--gold,rgba(200,169,106,.4));background:rgba(255,255,255,.9)}
+.light-hero .sidebar{--emerald:var(--plaza-color,#16305c)}
+.light-hero .sidebar-user .user-info strong{color:var(--white)}
+
+/* ===== WEATHER WIDGET ===== */
+.weather-widget{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid var(--glass-border);border-radius:var(--radius-card);box-shadow:var(--shadow-card);transition:all var(--transition)}
+.weather-widget:hover{backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px)}
+.weather-widget .ww-icon{font-size:36px;flex-shrink:0;line-height:1}
+.weather-widget .ww-info{display:flex;flex-direction:column}
+.weather-widget .ww-temp{font-size:28px;font-weight:700;color:var(--white);line-height:1.1}
+.weather-widget .ww-desc{font-size:12px;color:var(--text-tertiary);text-transform:capitalize}
+.weather-widget .ww-detail{display:flex;gap:12px;margin-top:4px;font-size:11px;color:var(--text-tertiary)}
+.light-hero .weather-widget{background:rgba(255,255,255,.65);border-color:rgba(0,0,0,.06)}
+.light-hero .weather-widget .ww-temp{color:var(--text-primary)}
+.light-hero .weather-widget .ww-desc,.light-hero .weather-widget .ww-detail{color:var(--text-secondary)}
+.weather-widget.loading{opacity:.5;pointer-events:none}
+.weather-widget.error{opacity:.6}
+.weather-widget.error .ww-icon{font-size:18px}
+
+/* ===== BLOCK GRID (contenido dinámico) ===== */
+.block-grid-wrap{margin-top:24px}
+.block{background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid var(--glass-border);border-radius:var(--radius-card);padding:24px;box-shadow:var(--shadow-card);margin-bottom:16px;transition:all var(--transition)}
+.block:hover{backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);background:rgba(20,20,20,.42)}
+.light-hero .block{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.06)}
+.light-hero .block:hover{background:rgba(255,255,255,.85)}
+.block img{max-width:100%;border-radius:12px;margin:8px 0;display:block}
+.block .block-caption{font-size:14px;color:var(--text-tertiary);margin-top:6px;font-style:italic}
+.light-hero .block .block-caption{color:var(--text-secondary)}
+
 /* ===== HERO VARIANT (no carousel) ===== */
 .hero-glass{background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid var(--glass-border);border-radius:var(--radius-card);padding:32px;box-shadow:var(--shadow-card);margin-bottom:0}
 .hero-glass h1{font-size:28px;font-weight:700;color:var(--white);margin:0 0 10px}

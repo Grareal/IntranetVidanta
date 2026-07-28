@@ -12,8 +12,13 @@
     var intro = Model.Value("introduccion") as string ?? "";
     var nombre = Model.Value("nombre") as string ?? Model.Name;
     var bienvenido = Model.Value("bienvenido") as string ?? "Bienvenido al portal de";
+    var bgImage = Model.Value<IPublishedContent>("imagenFondo")?.Url() ?? "";
+    var lat = Model.Value("latitud") as string ?? "";
+    var lon = Model.Value("longitud") as string ?? "";
+    var hasBg = !string.IsNullOrWhiteSpace(bgImage);
 }
-<div class="hero-bg">
+<div class="hero-bg@(hasBg?" has-image":"")">
+    @if (hasBg) { <div class="hero-bg-img" style="background-image:url('@bgImage')"></div> }
     <div class="topbar-overlay">
         <div class="greeting">
             <h1>@bienvenido @nombre</h1>
@@ -26,6 +31,17 @@
                     <input name="q" placeholder="Buscar…" aria-label="Buscar">
                 </form>
             </div>
+            @if (!string.IsNullOrWhiteSpace(lat) && !string.IsNullOrWhiteSpace(lon))
+            {
+                <div class="weather-widget loading" id="weatherWidget" data-lat="@lat" data-lon="@lon">
+                    <span class="ww-icon">⏳</span>
+                    <div class="ww-info">
+                        <span class="ww-temp">--°</span>
+                        <span class="ww-desc">Cargando...</span>
+                        <div class="ww-detail"><span>--% HR</span><span>-- km/h</span></div>
+                    </div>
+                </div>
+            }
             <div class="topbar-avatar" title="Perfil">VI</div>
         </div>
     </div>
@@ -40,14 +56,18 @@
                     var bUrl = b.Value("url") as string ?? "";
                     var bTitulo = b.Value("titulo") as string ?? "";
                     var bSubtitulo = b.Value("subtitulo") as string ?? "";
-                    var bAncho = int.TryParse(b.Value("ancho") as string, out var w) ? Math.Clamp(w, 1, 6) : 2;
-                    var bAlturaPx = b.Value("altura") as string ?? b.Value("alto") as string ?? "";
-                    var bAlturaStyle = string.IsNullOrWhiteSpace(bAlturaPx) ? "" : $"max-height:{bAlturaPx}px;";
+                    var bAncho = b.Value("ancho") as string ?? "2";
+                    var bAlto = b.Value("alto") as string ?? "";
+                    var span = 2;
+                    int.TryParse(bAncho, out span);
+                    if (span < 1) span = 1;
+                    if (span > 6) span = 6;
+                    var altoStyle = !string.IsNullOrWhiteSpace(bAlto) ? "height:" + bAlto + "px" : "";
                     if (!string.IsNullOrWhiteSpace(bImg))
                     {
-                        <div class="plaza-banner" style="grid-column:span @bAncho">
-                            @if (!string.IsNullOrWhiteSpace(bUrl)) { <a href="@bUrl" target="_blank" rel="noopener noreferrer"><img src="@bImg" alt="@bTitulo" loading="lazy" style="@bAlturaStyle"></a> }
-                            else { <img src="@bImg" alt="@bTitulo" loading="lazy" style="@bAlturaStyle"> }
+                        <div class="plaza-banner" style="grid-column:span @(span);@altoStyle">
+                            @if (!string.IsNullOrWhiteSpace(bUrl)) { <a href="@bUrl" target="_blank" rel="noopener noreferrer"><img src="@bImg" alt="@bTitulo" loading="lazy"></a> }
+                            else { <img src="@bImg" alt="@bTitulo" loading="lazy"> }
                             @if (!string.IsNullOrWhiteSpace(bTitulo) || !string.IsNullOrWhiteSpace(bSubtitulo))
                             {
                                 <div class="plaza-banner-overlay">
@@ -65,4 +85,37 @@
         @if (apps.Any()) { <div class="dashboard-row full"><div class="section-title-glass"><h2>Aplicaciones</h2></div><div class="apps-grid" style="margin-top:4px">@foreach (var app in apps) { <a class="app-card" href="@(app.Value("url") as string ?? "#")" target="_blank"><span class="app-badge">@(app.Value("categoria") as string ?? "App")</span><div class="app-icon">@(app.Value("icono") as string ?? "🔗")</div><h3>@(app.Value("nombre") as string ?? app.Name)</h3><p>@(app.Value("descripcion") as string ?? "")</p><span class="app-link">Abrir</span></a> }</div></div> }
         @if (accesos.Any()) { <div class="dashboard-row full"><div class="quick-access glass-card">@foreach (var q in accesos) { <a class="qa-item" href="@(q.Value("url") as string ?? "#")" target="_blank"><span class="qa-icon">@(q.Value("icono") as string ?? "→")</span>@(q.Value("nombre") as string ?? q.Name)</a> }</div></div> }
     </div>
+    @if (Model.HasValue("bloques"))
+    {
+        <div class="dashboard-grid" style="padding-top:0">
+            <div class="dashboard-row full"><div class="block-grid-wrap">@await Html.GetBlockGridHtmlAsync(Model, "bloques")</div></div>
+        </div>
+    }
 </div>
+<script>
+(function(){
+    var w = document.getElementById('weatherWidget');
+    if (!w) return;
+    var lat = w.getAttribute('data-lat');
+    var lon = w.getAttribute('data-lon');
+    if (!lat || !lon) { w.classList.replace('loading','error'); w.querySelector('.ww-icon').textContent='⚠'; w.querySelector('.ww-temp').textContent='--'; w.querySelector('.ww-desc').textContent='No configurado'; return; }
+    var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto';
+    fetch(url).then(function(r){ return r.json(); }).then(function(d){
+        if (!d || !d.current) throw new Error('Sin datos');
+        var c = d.current;
+        var codes = {0:'☀ Despejado',1:'🌤 Mayormente despejado',2:'⛅ Parcialmente nublado',3:'☁ Nublado',45:'🌫 Niebla',48:'🌫 Escarcha',51:'🌦 Llovizna',61:'🌧 Lluvia',71:'🌨 Nieve',80:'🌦 Chubascos',95:'⛈ Tormenta'};
+        var desc = codes[c.weather_code] || '🌡 ' + c.weather_code;
+        w.classList.remove('loading');
+        w.querySelector('.ww-icon').textContent = desc.split(' ')[0];
+        w.querySelector('.ww-temp').textContent = Math.round(c.temperature_2m) + '°';
+        w.querySelector('.ww-desc').textContent = desc.substring(desc.indexOf(' ')+1);
+        w.querySelector('.ww-detail').innerHTML = '<span>'+c.relative_humidity_2m+'% HR</span><span>'+Math.round(c.wind_speed_10m)+' km/h</span>';
+    }).catch(function(e){
+        w.classList.replace('loading','error');
+        w.querySelector('.ww-icon').textContent='⚠';
+        w.querySelector('.ww-temp').textContent='--';
+        w.querySelector('.ww-desc').textContent='Sin datos';
+        console.warn('Weather fetch error:', e);
+    });
+})();
+</script>

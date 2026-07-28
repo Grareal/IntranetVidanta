@@ -95,6 +95,11 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
             await EnsureSeccionHome();
             await EnsurePlaza();
 
+            // 1b) Element types para Block Grid + DataType + property
+            await EnsureBlockGridElements();
+            await EnsureBlockGridDataType();
+            await EnsureBlockGridOnPages();
+
             // 2) Document Types de estructura + hijos permitidos
             await EnsureAreaPage();
             await EnsureHome();
@@ -274,15 +279,118 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
 
     private async Task EnsurePlaza()
     {
-        if (_contentTypeService.Get("plaza") is not null) return;
-        var ct = NewType("plaza", "Plaza/Resort", "icon-building color-blue");
-        AddProp(ct, TextBox(), "nombre", "Nombre del Resort", true, 1);
-        AddProp(ct, TextBox(), "ubicacion", "Ubicación", false, 2);
-        AddProp(ct, TextBox(), "descripcion", "Descripción breve", false, 3);
-        AddProp(ct, RichText(), "introduccion", "Mensaje de bienvenida", false, 4);
-        AddProp(ct, MediaPicker(), "imagen", "Imagen del resort", false, 5);
-        AddProp(ct, TextBox(), "color", "Color acento (hex)", false, 6);
-        await Persist(ct);
+        var ct = _contentTypeService.Get("plaza");
+        if (ct is null)
+        {
+            var newCt = NewType("plaza", "Plaza/Resort", "icon-building color-blue");
+            AddProp(newCt, TextBox(), "nombre", "Nombre del Resort", true, 1);
+            AddProp(newCt, TextBox(), "ubicacion", "Ubicación", false, 2);
+            AddProp(newCt, TextBox(), "descripcion", "Descripción breve", false, 3);
+            AddProp(newCt, RichText(), "introduccion", "Mensaje de bienvenida", false, 4);
+            AddProp(newCt, MediaPicker(), "imagen", "Imagen del resort", false, 5);
+            AddProp(newCt, TextBox(), "color", "Color acento (hex)", false, 6);
+            await Persist(newCt);
+            ct = _contentTypeService.Get("plaza")!;
+        }
+
+        var changed = false;
+        if (ct!.PropertyTypes.All(p => p.Alias != "imagenFondo"))
+        {
+            AddProp((ContentType)ct, MediaPicker(), "imagenFondo", "Imagen de fondo del hero", false, 7);
+            changed = true;
+        }
+        if (ct.PropertyTypes.All(p => p.Alias != "fuente"))
+        {
+            AddProp((ContentType)ct, TextBox(), "fuente", "Tipografía (Inter, Playfair Display, Roboto, Lora)", false, 8);
+            changed = true;
+        }
+        if (ct.PropertyTypes.All(p => p.Alias != "bienvenido"))
+        {
+            AddProp((ContentType)ct, TextBox(), "bienvenido", "Texto de bienvenida (ej: Bienvenido a)", false, 9);
+            changed = true;
+        }
+        if (ct.PropertyTypes.All(p => p.Alias != "latitud"))
+        {
+            AddProp((ContentType)ct, TextBox(), "latitud", "Latitud (para widget de clima)", false, 10);
+            changed = true;
+        }
+        if (ct.PropertyTypes.All(p => p.Alias != "longitud"))
+        {
+            AddProp((ContentType)ct, TextBox(), "longitud", "Longitud (para widget de clima)", false, 11);
+            changed = true;
+        }
+        if (changed)
+        {
+            await _contentTypeService.UpdateAsync((ContentType)ct, UserKey);
+            _logger.LogInformation("plaza: propiedades extendidas agregadas.");
+        }
+    }
+
+    // ============ Element types (Block Grid) ============
+
+    private async Task EnsureBlockGridElements()
+    {
+        await EnsureBlockType("bloqueRichText", "Bloque de Texto", "icon-font color-blue",
+            ("contenido", "Contenido", (Func<IDataType?>)(RichText), false, 1));
+        await EnsureBlockType("bloqueImagen", "Bloque de Imagen", "icon-picture color-green",
+            ("imagen", "Imagen", (Func<IDataType?>)(MediaPicker), true, 1),
+            ("caption", "Texto alternativo", (Func<IDataType?>)(TextBox), false, 2));
+        await EnsureBlockType("bloqueGaleria", "Bloque de Galería", "icon-pictures color-pink",
+            ("fotos", "Fotos", (Func<IDataType?>)(MultipleMedia), true, 1));
+        await EnsureBlockType("bloqueHtml", "Bloque HTML libre", "icon-code color-purple",
+            ("html", "HTML / Código", (Func<IDataType?>)(RichText), false, 1));
+    }
+
+    private async Task EnsureBlockType(string alias, string name, string icon, params (string Alias, string Name, Func<IDataType?> DataType, bool Mandatory, int Sort)[] props)
+    {
+        if (_contentTypeService.Get(alias) is not null) return;
+        var ct = new ContentType(_shortStringHelper, -1)
+        {
+            Alias = alias, Name = name, Icon = icon, IsElement = true
+        };
+        foreach (var (pAlias, pName, pDt, pMandatory, pSort) in props)
+        {
+            var dt = pDt();
+            if (dt is null) continue;
+            ct.AddPropertyType(new PropertyType(_shortStringHelper, dt)
+            {
+                Alias = pAlias, Name = pName, Mandatory = pMandatory, SortOrder = pSort
+            }, "contenido", "Contenido");
+        }
+        await _contentTypeService.CreateAsync(ct, UserKey);
+        _logger.LogInformation("Block element '{Name}' ({Alias}) creado.", name, alias);
+    }
+
+    private async Task EnsureBlockGridDataType()
+    {
+        var bgExists = _dataTypes.Any(d => d.EditorAlias == "Umbraco.BlockGrid");
+        if (!bgExists)
+        {
+            _logger.LogWarning("No hay DataType Block Grid en el sistema. Crea uno manualmente en Settings → Data Types → Create → Block Grid. " +
+                "Agrega los element types: bloqueRichText, bloqueImagen, bloqueGaleria, bloqueHtml. Luego reinicia la app.");
+            return;
+        }
+        _logger.LogInformation("Block Grid DataType encontrado. Los element types están listos.");
+    }
+
+    private async Task EnsureBlockGridOnPages()
+    {
+        var bgDt = _dataTypes.FirstOrDefault(d => d.EditorAlias == "Umbraco.BlockGrid");
+        if (bgDt is null) return;
+
+        foreach (var (alias, propName) in new[] { ("areaPage", "bloques"), ("plaza", "bloques") })
+        {
+            var ct = _contentTypeService.Get(alias);
+            if (ct is null || ct.PropertyTypes.Any(p => p.Alias == propName)) continue;
+            var prop = new PropertyType(_shortStringHelper, bgDt)
+            {
+                Alias = propName, Name = "Bloques de contenido", SortOrder = 99
+            };
+            ct.AddPropertyType(prop, "contenido", "Contenido");
+            await _contentTypeService.UpdateAsync((ContentType)ct, UserKey);
+            _logger.LogInformation("Block Grid property 'bloques' agregada a '{Alias}'.", alias);
+        }
+        _dataTypes = (await _dataTypeService.GetAllAsync()).ToList();
     }
 
     // ============ Document Types de estructura ============
@@ -297,14 +405,29 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
             AddProp(newCt, RichText(), "introduccion", "Introducción", false, 2);
             AddProp(newCt, RichText(), "contenido", "Contenido enriquecido (collages, HTML, imágenes)", false, 3);
             await Persist(newCt);
+            ct = _contentTypeService.Get("areaPage")!;
         }
 
-        ct = _contentTypeService.Get("areaPage")!;
-        if (ct.PropertyTypes.All(p => p.Alias != "contenido"))
+        var changed = false;
+        if (ct!.PropertyTypes.All(p => p.Alias != "contenido"))
         {
             AddProp((ContentType)ct, RichText(), "contenido", "Contenido enriquecido (collages, HTML, imágenes)", false, 3);
+            changed = true;
+        }
+        if (ct.PropertyTypes.All(p => p.Alias != "color"))
+        {
+            AddProp((ContentType)ct, TextBox(), "color", "Color acento (hex, opcional — hereda de plaza padre)", false, 4);
+            changed = true;
+        }
+        if (ct.PropertyTypes.All(p => p.Alias != "imagenFondo"))
+        {
+            AddProp((ContentType)ct, MediaPicker(), "imagenFondo", "Imagen de fondo del hero", false, 5);
+            changed = true;
+        }
+        if (changed)
+        {
             await _contentTypeService.UpdateAsync((ContentType)ct, UserKey);
-            _logger.LogInformation("areaPage: campo 'contenido' agregado.");
+            _logger.LogInformation("areaPage: propiedades extendidas agregadas.");
         }
 
         var hijos = new[] { "aviso", "documento", "collage", "areaPage" };
@@ -626,8 +749,13 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
     var intro = Model.Value("introduccion") as string ?? "";
     var nombre = Model.Value("nombre") as string ?? Model.Name;
     var bienvenido = Model.Value("bienvenido") as string ?? "Bienvenido al portal de";
+    var bgImage = Model.Value<IPublishedContent>("imagenFondo")?.Url() ?? "";
+    var lat = Model.Value("latitud") as string ?? "";
+    var lon = Model.Value("longitud") as string ?? "";
+    var hasBg = !string.IsNullOrWhiteSpace(bgImage);
 }
-<div class="hero-bg">
+<div class="hero-bg@(hasBg?" has-image":"")">
+    @if (hasBg) { <div class="hero-bg-img" style="background-image:url('@bgImage')"></div> }
     <div class="topbar-overlay">
         <div class="greeting">
             <h1>@bienvenido @nombre</h1>
@@ -640,6 +768,17 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
                     <input name="q" placeholder="Buscar…" aria-label="Buscar">
                 </form>
             </div>
+            @if (!string.IsNullOrWhiteSpace(lat) && !string.IsNullOrWhiteSpace(lon))
+            {
+                <div class="weather-widget loading" id="weatherWidget" data-lat="@lat" data-lon="@lon">
+                    <span class="ww-icon">⏳</span>
+                    <div class="ww-info">
+                        <span class="ww-temp">--°</span>
+                        <span class="ww-desc">Cargando...</span>
+                        <div class="ww-detail"><span>--% HR</span><span>-- km/h</span></div>
+                    </div>
+                </div>
+            }
             <div class="topbar-avatar" title="Perfil">VI</div>
         </div>
     </div>
@@ -647,16 +786,23 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
         @if (!string.IsNullOrWhiteSpace(intro)) { <div class="dashboard-row full"><div class="glass-card"><div class="page-sub" style="font-size:15px;color:var(--text-secondary);line-height:1.8">@Html.Raw(intro)</div></div></div> }
         @if (banners.Any())
         {
-            <div class="dashboard-row full">
+            <div class="banner-grid">
                 @foreach (var b in banners)
                 {
                     var bImg = b.Value<IPublishedContent>("imagen")?.Url() ?? "";
                     var bUrl = b.Value("url") as string ?? "";
                     var bTitulo = b.Value("titulo") as string ?? "";
                     var bSubtitulo = b.Value("subtitulo") as string ?? "";
+                    var bAncho = b.Value("ancho") as string ?? "2";
+                    var bAlto = b.Value("alto") as string ?? "";
+                    var span = 2;
+                    int.TryParse(bAncho, out span);
+                    if (span < 1) span = 1;
+                    if (span > 6) span = 6;
+                    var altoStyle = !string.IsNullOrWhiteSpace(bAlto) ? "height:" + bAlto + "px" : "";
                     if (!string.IsNullOrWhiteSpace(bImg))
                     {
-                        <div class="plaza-banner">
+                        <div class="plaza-banner" style="grid-column:span @(span);@altoStyle">
                             @if (!string.IsNullOrWhiteSpace(bUrl)) { <a href="@bUrl" target="_blank" rel="noopener noreferrer"><img src="@bImg" alt="@bTitulo" loading="lazy"></a> }
                             else { <img src="@bImg" alt="@bTitulo" loading="lazy"> }
                             @if (!string.IsNullOrWhiteSpace(bTitulo) || !string.IsNullOrWhiteSpace(bSubtitulo))
@@ -672,11 +818,44 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
             </div>
         }
         @if (avisos.Any()) { <div class="dashboard-row"><div class="glass-card"><div class="section-title-glass"><h2>Avisos</h2></div><div class="events-list" style="margin-top:14px">@foreach (var av in avisos) { <a class="event-item" href="@av.Url()"><span class="event-dot gold"></span><div class="event-info"><strong>@(av.Value("titulo") as string ?? av.Name)</strong><span>@(av.Value("area") as string ?? "")</span></div><span class="event-date">@av.CreateDate.ToString("dd MMM", ci)</span></a> }</div></div></div> }
-        @if (documentos.Any()) { <div class="dashboard-row"><div class="glass-card"><div class="section-title-glass"><h2>Documentos</h2></div><div class="content-list" style="margin-top:14px">@foreach (var d in documentos) { var archivo = d.Value<IPublishedContent>("archivo"); <a class="content-list-item" href="@(archivo?.Url() ?? d.Url())"><div class="cli-icon">ðŸ“„</div><div class="cli-body"><strong>@(d.Value("titulo") as string ?? d.Name)</strong><small>@(d.Value("area") as string ?? "")</small></div><span class="cli-meta">@d.CreateDate.ToString("dd MMM", ci)</span><span class="cli-action">â†’</span></a> }</div></div></div> }
-        @if (apps.Any()) { <div class="dashboard-row full"><div class="section-title-glass"><h2>Aplicaciones</h2></div><div class="apps-grid" style="margin-top:4px">@foreach (var app in apps) { <a class="app-card" href="@(app.Value("url") as string ?? "#")" target="_blank"><span class="app-badge">@(app.Value("categoria") as string ?? "App")</span><div class="app-icon">@(app.Value("icono") as string ?? "ðŸ”—")</div><h3>@(app.Value("nombre") as string ?? app.Name)</h3><p>@(app.Value("descripcion") as string ?? "")</p><span class="app-link">Abrir</span></a> }</div></div> }
-        @if (accesos.Any()) { <div class="dashboard-row full"><div class="quick-access glass-card">@foreach (var q in accesos) { <a class="qa-item" href="@(q.Value("url") as string ?? "#")" target="_blank"><span class="qa-icon">@(q.Value("icono") as string ?? "â†’")</span>@(q.Value("nombre") as string ?? q.Name)</a> }</div></div> }
+        @if (documentos.Any()) { <div class="dashboard-row"><div class="glass-card"><div class="section-title-glass"><h2>Documentos</h2></div><div class="content-list" style="margin-top:14px">@foreach (var d in documentos) { var archivo = d.Value<IPublishedContent>("archivo"); <a class="content-list-item" href="@(archivo?.Url() ?? d.Url())"><div class="cli-icon">📄</div><div class="cli-body"><strong>@(d.Value("titulo") as string ?? d.Name)</strong><small>@(d.Value("area") as string ?? "")</small></div><span class="cli-meta">@d.CreateDate.ToString("dd MMM", ci)</span><span class="cli-action">→</span></a> }</div></div></div> }
+        @if (apps.Any()) { <div class="dashboard-row full"><div class="section-title-glass"><h2>Aplicaciones</h2></div><div class="apps-grid" style="margin-top:4px">@foreach (var app in apps) { <a class="app-card" href="@(app.Value("url") as string ?? "#")" target="_blank"><span class="app-badge">@(app.Value("categoria") as string ?? "App")</span><div class="app-icon">@(app.Value("icono") as string ?? "🔗")</div><h3>@(app.Value("nombre") as string ?? app.Name)</h3><p>@(app.Value("descripcion") as string ?? "")</p><span class="app-link">Abrir</span></a> }</div></div> }
+        @if (accesos.Any()) { <div class="dashboard-row full"><div class="quick-access glass-card">@foreach (var q in accesos) { <a class="qa-item" href="@(q.Value("url") as string ?? "#")" target="_blank"><span class="qa-icon">@(q.Value("icono") as string ?? "→")</span>@(q.Value("nombre") as string ?? q.Name)</a> }</div></div> }
     </div>
+    @if (Model.HasValue("bloques"))
+    {
+        <div class="dashboard-grid" style="padding-top:0">
+            <div class="dashboard-row full"><div class="block-grid-wrap">@await Html.GetBlockGridHtmlAsync(Model, "bloques")</div></div>
+        </div>
+    }
 </div>
+<script>
+(function(){
+    var w = document.getElementById('weatherWidget');
+    if (!w) return;
+    var lat = w.getAttribute('data-lat');
+    var lon = w.getAttribute('data-lon');
+    if (!lat || !lon) { w.classList.replace('loading','error'); w.querySelector('.ww-icon').textContent='⚠'; w.querySelector('.ww-temp').textContent='--'; w.querySelector('.ww-desc').textContent='No configurado'; return; }
+    var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto';
+    fetch(url).then(function(r){ return r.json(); }).then(function(d){
+        if (!d || !d.current) throw new Error('Sin datos');
+        var c = d.current;
+        var codes = {0:'☀ Despejado',1:'🌤 Mayormente despejado',2:'⛅ Parcialmente nublado',3:'☁ Nublado',45:'🌫 Niebla',48:'🌫 Escarcha',51:'🌦 Llovizna',61:'🌧 Lluvia',71:'🌨 Nieve',80:'🌦 Chubascos',95:'⛈ Tormenta'};
+        var desc = codes[c.weather_code] || '🌡 ' + c.weather_code;
+        w.classList.remove('loading');
+        w.querySelector('.ww-icon').textContent = desc.split(' ')[0];
+        w.querySelector('.ww-temp').textContent = Math.round(c.temperature_2m) + '°';
+        w.querySelector('.ww-desc').textContent = desc.substring(desc.indexOf(' ')+1);
+        w.querySelector('.ww-detail').innerHTML = '<span>'+c.relative_humidity_2m+'% HR</span><span>'+Math.round(c.wind_speed_10m)+' km/h</span>';
+    }).catch(function(e){
+        w.classList.replace('loading','error');
+        w.querySelector('.ww-icon').textContent='⚠';
+        w.querySelector('.ww-temp').textContent='--';
+        w.querySelector('.ww-desc').textContent='Sin datos';
+        console.warn('Weather fetch error:', e);
+    });
+})();
+</script>
 """;
 
     private const string ErrorRazor =
@@ -783,7 +962,8 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
     var hoy = DateTime.Now;
 }
 <div class="home-landing">
-    <div class="landing-hero">
+    <div class="landing-hero" id="landingHero">
+        <div class="hero-hover-bg" id="heroHoverBg"></div>
         <div class="landing-content">
             <div class="landing-badge">Intranet Grupo Vidanta</div>
             <h1>@titulo</h1>
@@ -805,10 +985,11 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
                 @foreach (var plaza in plazas)
                 {
                     var imgUrl = plaza.Value<IPublishedContent>("imagen")?.Url() ?? "";
+                    var heroBg = plaza.Value<IPublishedContent>("imagenFondo")?.Url() ?? imgUrl;
                     var desc = plaza.Value("descripcion") as string ?? "";
                     var ubicacion = plaza.Value("ubicacion") as string ?? "";
                     var color = plaza.Value("color") as string ?? "var(--emerald)";
-                    <a class="resort-card" href="@plaza.Url()">
+                    <a class="resort-card" href="@plaza.Url()" data-hero-bg="@heroBg">
                         <div class="resort-card-img" style="@(imgUrl != "" ? $"background-image:url('{imgUrl}')" : $"background-color:{color}")">
                             @if (string.IsNullOrWhiteSpace(imgUrl))
                             {
@@ -850,6 +1031,27 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
         }
     </div>
 </div>
+@section Scripts {
+<script>
+(function(){
+    var heroBg = document.getElementById('heroHoverBg');
+    if (!heroBg) return;
+    var timeout = null;
+    document.querySelectorAll('.resort-card').forEach(function(card){
+        card.addEventListener('mouseenter', function(){
+            var bg = this.getAttribute('data-hero-bg');
+            if (!bg) { heroBg.classList.remove('show'); return; }
+            clearTimeout(timeout);
+            heroBg.style.backgroundImage = "url('" + bg + "')";
+            heroBg.classList.add('show');
+        });
+        card.addEventListener('mouseleave', function(){
+            timeout = setTimeout(function(){ heroBg.classList.remove('show'); }, 200);
+        });
+    });
+})();
+</script>
+}
 """;
 
     private const string AreaRazor =
@@ -866,20 +1068,24 @@ public class IntranetSchemaInstaller : INotificationAsyncHandler<UmbracoApplicat
     var intro = Model.Value("introduccion") as string ?? "";
     var contenido = Model.Value("contenido") as string ?? "";
     var titulo = Model.Value("titulo") as string ?? Model.Name;
+    var bgImage = Model.Value<IPublishedContent>("imagenFondo")?.Url() ?? "";
+    var hasBg = !string.IsNullOrWhiteSpace(bgImage);
 }
-<div class="hero-bg">
+<div class="hero-bg@(hasBg?" has-image":"")">
+    @if (hasBg) { <div class="hero-bg-img" style="background-image:url('@bgImage')"></div> }
     <div class="content-page">
         <div class="page-header-glass">
             <div class="breadcrumbs"><a href="/">Inicio</a> / @titulo</div>
             <h1>@titulo</h1>
             @if (!string.IsNullOrWhiteSpace(intro)) { <div class="page-sub">@Html.Raw(intro)</div> }
         </div>
-        @if (children.Any()) { <div class="section-title-glass"><h2>Ãreas internas</h2></div><div class="content-cards">@foreach (var child in children) { <a class="content-card" href="@child.Url()"><div class="card-head"><div class="card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><h3>@child.Name</h3></div><p>Accede a informaciÃ³n y recursos del Ã¡rea.</p><span class="card-action">Explorar Ã¡rea â†’</span></a> }</div> }
+        @if (children.Any()) { <div class="section-title-glass"><h2>Areas internas</h2></div><div class="content-cards">@foreach (var child in children) { <a class="content-card" href="@child.Url()"><div class="card-head"><div class="card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><h3>@child.Name</h3></div><p>Accede a informacion y recursos del area.</p><span class="card-action">Explorar area →</span></a> }</div> }
         @if (!string.IsNullOrWhiteSpace(contenido)) { <div class="section-title-glass"><h2>Contenido</h2></div><div class="glass-card rich-content" style="line-height:1.9;font-size:15px;color:var(--text-secondary)">@Html.Raw(contenido)</div> }
-        @if (avisos.Any()) { <div class="section-title-glass"><h2>Avisos y comunicados</h2></div><div class="content-list">@foreach (var aviso in avisos) { <a class="content-list-item" href="@aviso.Url()"><div class="cli-icon">ðŸ“£</div><div class="cli-body"><strong>@(aviso.Value("titulo") as string ?? aviso.Name)</strong><small>@(aviso.Value("area") as string ?? "")@((aviso.Value("etiqueta") as string) != "" ? " Â· " + (aviso.Value("etiqueta") as string) : "")</small></div><span class="cli-meta">@aviso.CreateDate.ToString("dd MMM yyyy", ci)</span><span class="cli-action">â†’</span></a> }</div> }
-        @if (documentos.Any()) { <div class="section-title-glass"><h2>Documentos</h2></div><div class="content-list">@foreach (var doc in documentos) { var archivo = doc.Value<IPublishedContent>("archivo"); <a class="content-list-item" href="@(archivo?.Url() ?? doc.Url())" @(archivo != null ? "target=_blank" : "")><div class="cli-icon">ðŸ“„</div><div class="cli-body"><strong>@(doc.Value("titulo") as string ?? doc.Name)</strong><small>@(doc.Value("area") as string ?? "")</small></div><span class="cli-meta">@doc.CreateDate.ToString("dd MMM yyyy", ci)</span><span class="cli-action">â†“</span></a> }</div> }
-        @if (collages.Any()) { <div class="section-title-glass"><h2>GalerÃ­a</h2></div><div class="content-cards">@foreach (var col in collages) { var fotos = col.Value<IEnumerable<IPublishedContent>>("fotos"); <a class="content-card" href="@col.Url()"><div class="card-head"><div class="card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><h3>@(col.Value("titulo") as string ?? col.Name)</h3></div>@if (fotos != null) { <p>@fotos.Count() fotografÃ­as</p> }<span class="card-action">Ver galerÃ­a â†’</span></a> }</div> }
-        @if (!avisos.Any() && !documentos.Any() && !children.Any() && string.IsNullOrWhiteSpace(contenido) && !collages.Any()) { <div class="empty-state">No hay contenido disponible en esta Ã¡rea.</div> }
+        @if (avisos.Any()) { <div class="section-title-glass"><h2>Avisos y comunicados</h2></div><div class="content-list">@foreach (var aviso in avisos) { <a class="content-list-item" href="@aviso.Url()"><div class="cli-icon">📣</div><div class="cli-body"><strong>@(aviso.Value("titulo") as string ?? aviso.Name)</strong><small>@(aviso.Value("area") as string ?? "")@((aviso.Value("etiqueta") as string) != "" ? " · " + (aviso.Value("etiqueta") as string) : "")</small></div><span class="cli-meta">@aviso.CreateDate.ToString("dd MMM yyyy", ci)</span><span class="cli-action">→</span></a> }</div> }
+        @if (documentos.Any()) { <div class="section-title-glass"><h2>Documentos</h2></div><div class="content-list">@foreach (var doc in documentos) { var archivo = doc.Value<IPublishedContent>("archivo"); <a class="content-list-item" href="@(archivo?.Url() ?? doc.Url())" @(archivo != null ? "target=_blank" : "")><div class="cli-icon">📄</div><div class="cli-body"><strong>@(doc.Value("titulo") as string ?? doc.Name)</strong><small>@(doc.Value("area") as string ?? "")</small></div><span class="cli-meta">@doc.CreateDate.ToString("dd MMM yyyy", ci)</span><span class="cli-action">↓</span></a> }</div> }
+        @if (collages.Any()) { <div class="section-title-glass"><h2>Galeria</h2></div><div class="content-cards">@foreach (var col in collages) { var fotos = col.Value<IEnumerable<IPublishedContent>>("fotos"); <a class="content-card" href="@col.Url()"><div class="card-head"><div class="card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><h3>@(col.Value("titulo") as string ?? col.Name)</h3></div>@if (fotos != null) { <p>@fotos.Count() fotografias</p> }<span class="card-action">Ver galeria →</span></a> }</div> }
+        @if (!avisos.Any() && !documentos.Any() && !children.Any() && string.IsNullOrWhiteSpace(contenido) && !collages.Any()) { <div class="empty-state">No hay contenido disponible en esta area.</div> }
+        @if (Model.HasValue("bloques")) { <div class="block-grid-wrap">@await Html.GetBlockGridHtmlAsync(Model, "bloques")</div> }
     </div>
 </div>
 """;

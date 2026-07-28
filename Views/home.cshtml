@@ -12,8 +12,8 @@
     var hoy = DateTime.Now;
 }
 <div class="home-landing">
-    <div class="hero-hover-bg" id="heroHoverBg"></div>
     <div class="landing-hero" id="landingHero">
+        <div class="hero-hover-bg" id="heroHoverBg"></div>
         <div class="landing-content">
             <div class="landing-badge">Intranet Grupo Vidanta</div>
             <h1>@titulo</h1>
@@ -35,10 +35,11 @@
                 @foreach (var plaza in plazas)
                 {
                     var imgUrl = plaza.Value<IPublishedContent>("imagen")?.Url() ?? "";
+                    var heroBg = plaza.Value<IPublishedContent>("imagenFondo")?.Url() ?? imgUrl;
                     var desc = plaza.Value("descripcion") as string ?? "";
                     var ubicacion = plaza.Value("ubicacion") as string ?? "";
                     var color = plaza.Value("color") as string ?? "var(--emerald)";
-                    <a class="resort-card" href="@plaza.Url()" data-bg="@imgUrl">
+                    <a class="resort-card" href="@plaza.Url()" data-hero-bg="@heroBg">
                         <div class="resort-card-img" style="@(imgUrl != "" ? $"background-image:url('{imgUrl}')" : $"background-color:{color}")">
                             @if (string.IsNullOrWhiteSpace(imgUrl))
                             {
@@ -83,16 +84,19 @@
 @section Scripts {
 <script>
 (function(){
-    var hero = document.getElementById('heroHoverBg');
-    if (!hero) return;
-    var cards = document.querySelectorAll('.resort-card');
-    cards.forEach(function(c){
-        c.addEventListener('mouseenter', function(){
-            var bg = this.getAttribute('data-bg');
-            if (bg) { hero.style.backgroundImage = "url('" + bg + "')"; hero.classList.add('show'); }
+    var heroBg = document.getElementById('heroHoverBg');
+    if (!heroBg) return;
+    var timeout = null;
+    document.querySelectorAll('.resort-card').forEach(function(card){
+        card.addEventListener('mouseenter', function(){
+            var bg = this.getAttribute('data-hero-bg');
+            if (!bg) { heroBg.classList.remove('show'); return; }
+            clearTimeout(timeout);
+            heroBg.style.backgroundImage = "url('" + bg + "')";
+            heroBg.classList.add('show');
         });
-        c.addEventListener('mouseleave', function(){
-            hero.classList.remove('show');
+        card.addEventListener('mouseleave', function(){
+            timeout = setTimeout(function(){ heroBg.classList.remove('show'); }, 200);
         });
     });
 })();

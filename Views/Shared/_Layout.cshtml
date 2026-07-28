@@ -47,6 +47,50 @@
             accesos.Add(new { Nombre = q.Value("nombre") as string ?? q.Name, Url = q.Value("url") as string ?? "#", Icono = q.Value("icono") as string ?? "→" });
         }
     }
+    // --- AreaPage detection (for color cascade) ---
+    IPublishedContent? currentArea = null;
+    if (currentType == "areaPage") { currentArea = Model; }
+    else if (!isHome && currentPlaza != null) {
+        var p2 = Model.Parent();
+        while (p2 != null && p2.ContentType.Alias != "areaPage" && p2.Id != root.Id && p2.Id != currentPlaza.Id) { p2 = p2.Parent(); }
+        if (p2 != null && p2.ContentType.Alias == "areaPage") { currentArea = p2; }
+    }
+
+    // --- Determine effective color (area > plaza > default) ---
+    var effectiveColor = "";
+    if (currentArea != null) { effectiveColor = currentArea.Value("color") as string ?? ""; }
+    if (string.IsNullOrWhiteSpace(effectiveColor) && currentPlaza != null) { effectiveColor = currentPlaza.Value("color") as string ?? ""; }
+
+    // --- Background image ---
+    var bgImage = "";
+    if (currentArea != null) { bgImage = currentArea.Value<IPublishedContent>("imagenFondo")?.Url() ?? ""; }
+    if (string.IsNullOrWhiteSpace(bgImage) && currentPlaza != null) { bgImage = currentPlaza.Value<IPublishedContent>("imagenFondo")?.Url() ?? ""; }
+
+    // --- Font ---
+    var fontFamily = ""; var fontUrl = "";
+    if (currentPlaza != null) { fontFamily = currentPlaza.Value("fuente") as string ?? ""; }
+    if (!string.IsNullOrWhiteSpace(fontFamily))
+    {
+        var f = fontFamily.ToLowerInvariant();
+        if (f.Contains("playfair")) { fontUrl = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap"; fontFamily = "'Playfair Display', serif"; }
+        else if (f.Contains("roboto")) { fontUrl = "https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap"; fontFamily = "'Roboto', sans-serif"; }
+        else if (f.Contains("lora")) { fontUrl = "https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap"; fontFamily = "'Lora', serif"; }
+        else if (f.Contains("inter")) { fontUrl = ""; fontFamily = "'Inter', system-ui, sans-serif"; }
+        else { fontFamily = ""; }
+    }
+
+    // --- Light/dark detection ---
+    var isLightColor = false;
+    if (!string.IsNullOrWhiteSpace(effectiveColor))
+    {
+        try {
+            var r = Convert.ToInt32(effectiveColor.Substring(1, 2), 16);
+            var g = Convert.ToInt32(effectiveColor.Substring(3, 2), 16);
+            var b = Convert.ToInt32(effectiveColor.Substring(5, 2), 16);
+            isLightColor = (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55;
+        } catch { }
+    }
+    var lightClass = isLightColor ? " light-hero" : "";
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -58,33 +102,36 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/intranet.css">
-@if (currentPlaza != null)
+@if (!string.IsNullOrWhiteSpace(fontUrl))
 {
-    var plazaColor = currentPlaza.Value("color") as string ?? "";
-    if (!string.IsNullOrWhiteSpace(plazaColor))
-    {
-        <style>
-          :root{
-            --plaza-color:@(plazaColor);
-            --plaza-dark:color-mix(in srgb, @(plazaColor), black 25%);
-            --plaza-darker:color-mix(in srgb, @(plazaColor), black 40%);
-            --plaza-light:color-mix(in srgb, @(plazaColor), white 35%);
-            --plaza-lighter:color-mix(in srgb, @(plazaColor), white 55%);
-            --emerald:@(plazaColor);
-            --emerald-light:var(--plaza-light);
-            --gold:var(--plaza-light);
-            --gold-light:var(--plaza-lighter);
-            --gold-hover:color-mix(in srgb, @(plazaColor), white 55%);
-            --gold-alpha-5:color-mix(in srgb, @(plazaColor), transparent 95%);
-            --gold-alpha-8:color-mix(in srgb, @(plazaColor), transparent 92%);
-            --gold-alpha-10:color-mix(in srgb, @(plazaColor), transparent 90%);
-            --gold-alpha-12:color-mix(in srgb, @(plazaColor), transparent 88%);
-            --gold-alpha-15:color-mix(in srgb, @(plazaColor), transparent 85%);
-            --gold-alpha-20:color-mix(in srgb, @(plazaColor), transparent 80%);
-            --gold-alpha-40:color-mix(in srgb, @(plazaColor), transparent 60%);
-          }
-        </style>
-    }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="@fontUrl" rel="stylesheet">
+}
+@if (!string.IsNullOrWhiteSpace(effectiveColor))
+{
+    <style>
+      :root{
+        --plaza-color:@(effectiveColor);
+        --plaza-dark:color-mix(in srgb, @(effectiveColor), black 25%);
+        --plaza-darker:color-mix(in srgb, @(effectiveColor), black 40%);
+        --plaza-light:color-mix(in srgb, @(effectiveColor), white 35%);
+        --plaza-lighter:color-mix(in srgb, @(effectiveColor), white 55%);
+        --emerald:@(effectiveColor);
+        --emerald-light:var(--plaza-light);
+        --gold:var(--plaza-light);
+        --gold-light:var(--plaza-lighter);
+        --gold-hover:color-mix(in srgb, @(effectiveColor), white 55%);
+        --gold-alpha-5:color-mix(in srgb, @(effectiveColor), transparent 95%);
+        --gold-alpha-8:color-mix(in srgb, @(effectiveColor), transparent 92%);
+        --gold-alpha-10:color-mix(in srgb, @(effectiveColor), transparent 90%);
+        --gold-alpha-12:color-mix(in srgb, @(effectiveColor), transparent 88%);
+        --gold-alpha-15:color-mix(in srgb, @(effectiveColor), transparent 85%);
+        --gold-alpha-20:color-mix(in srgb, @(effectiveColor), transparent 80%);
+        --gold-alpha-40:color-mix(in srgb, @(effectiveColor), transparent 60%);
+      }
+      @if (!string.IsNullOrWhiteSpace(fontFamily)) { <text>body{font-family:@(fontFamily)!important}</text> }
+    </style>
 }
 <style>
 .corporate-mode{
@@ -110,7 +157,7 @@
 </style>
 @RenderSection("Head", required: false)
 </head>
-<body class="app-shell">
+<body class="app-shell@(lightClass)">
 <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menú">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </button>

@@ -1,0 +1,10 @@
+@using Umbraco.Cms.Core.Models.Blocks
+@inherits UmbracoViewPage<BlockGridItem<IPublishedElement>>
+@{
+    var img = Model.Content.Value<IPublishedContent>("imagen");
+    var caption = Model.Content.Value("caption") as string ?? "";
+}
+<div class="block image-block">
+    @if (img != null) { <img src="@img.Url()" alt="@caption" loading="lazy"> }
+    @if (!string.IsNullOrWhiteSpace(caption)) { <p class="block-caption">@caption</p> }
+</div>
